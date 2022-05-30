@@ -28,6 +28,9 @@
 
 #include "i2cdevice.h"
 
+// if defined wiringPi is used to handle the i2c-device
+//#define i2cDeviceWP 
+
 class PWM
 {
 public:
@@ -72,5 +75,11 @@ public:
     void setAll (int on, int off);
 
 private:
+
+#if defined i2cDeviceWP
+    I2CDeviceWP device;
+#else
     I2CDevice device;
+#endif
+
 };

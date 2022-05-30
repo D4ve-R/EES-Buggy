@@ -29,6 +29,7 @@
 
 #include <string>
 
+#include <linux/i2c-dev.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>

@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <linux/i2c-dev.h>
 
 /** Represents an I2C device.
  *  using linux device tree

@@ -1,7 +1,6 @@
 #include "i2cdevice.h"
 
 #include <wiringPiI2C.h>
-#include <string>
 
 I2CDeviceWP::I2CDeviceWP (int i2cAddress)
     : address {i2cAddress}
