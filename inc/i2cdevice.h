@@ -39,8 +39,8 @@ public:
 
     bool isValid();
 
-    virtual void write8 (int deviceRegister, int data);
-    virtual int read8 (int deviceRegister);
+    void write8 (int deviceRegister, int data);
+    int read8 (int deviceRegister);
 
 private:
     void openHandle();
@@ -60,8 +60,15 @@ class I2CDeviceWP
 {
     I2CDeviceWP(int i2cAddress);
     ~I2CDeviceWP();
-    void write8(int deviceRegister, int data) override;
-    int read8(int deviceRegister) override;
+
+    void write(int data);
+    void write8(int deviceRegister, int data);
+    void write16(int deviceRegister, int data);
+
+    int read(void);
+    int read8(int deviceRegister);
+    int read16(int deviceRegister);
+
     bool isValid();
 
     private:
