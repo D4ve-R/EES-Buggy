@@ -1,5 +1,5 @@
 /**
- *  i2cdevice.h
+ *  adafruitmotorhat.h
  *
  *  MIT License
  *
@@ -26,46 +26,26 @@
 
 #pragma once
 
-#include <linux/i2c-dev.h>
+#include "pwm.h"
+#include "adafruitdcmotor.h"
 
-/** Represents an I2C device.
- *  using linux device tree
- *  Uses ioctl to control an I2C device.
- */
-class I2CDevice
+#include <memory>
+#include <vector>
+
+class AdafruitMotorHAT
 {
 public:
-    I2CDevice (int i2cAddress);
-    ~I2CDevice();
+    AdafruitMotorHAT (int address = 0x60, int freq = 1600);
 
-    bool isValid();
-
-    virtual void write8 (int deviceRegister, int data);
-    virtual int read8 (int deviceRegister);
+    /** Get one of the DC motors controlled by the HAT.
+     *  Expects a value between 1 and 4 inclusive.
+     *  If the number is out-of-range, the shared pointer
+     *  returned from the method will be empty.
+     */
+    std::shared_ptr<AdafruitDCMotor> getMotor (unsigned int number);
 
 private:
-    void openHandle();
-    void closeHandle();
-
-    void selectDevice();
-    void writeByteData (int deviceRegister, int data);
-    int readByteData (int deviceRegister);
-
-    const int busNumber;
-    const int address;
-    int handle;
-};
-
-// using wiringPi 
-class I2CDeviceWP
-{
-    I2CDeviceWP(int i2cAddress);
-    ~I2CDeviceWP();
-    void write8(int deviceRegister, int data) override;
-    int read8(int deviceRegister) override;
-    bool isValid();
-
-    private:
-    const int address;
-    int handle;
+    PWM controller;
+    const int frequency;
+    std::vector<std::shared_ptr<AdafruitDCMotor>> dcMotors;
 };

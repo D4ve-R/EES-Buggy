@@ -1,5 +1,5 @@
 /**
- *  i2cdevice.h
+ *  pwm.h
  *
  *  MIT License
  *
@@ -26,46 +26,51 @@
 
 #pragma once
 
-#include <linux/i2c-dev.h>
+#include "i2cdevice.h"
 
-/** Represents an I2C device.
- *  using linux device tree
- *  Uses ioctl to control an I2C device.
- */
-class I2CDevice
+class PWM
 {
 public:
-    I2CDevice (int i2cAddress);
-    ~I2CDevice();
+    // Registers/etc.
+    enum Registers
+    {
+        kMode1       = 0x00,
+        kMode2       = 0x01,
+        kSubAddress1 = 0x02,
+        kSubAddress2 = 0x03,
+        kSubAddress3 = 0x04,
+        kPreScale    = 0xFE,
+        kLed0OnL     = 0x06,
+        kLed0OnH     = 0x07,
+        kLed0OffL    = 0x08,
+        kLed0OffH    = 0x09,
+        kAllLedOnL   = 0xFA,
+        kAllLedOnH   = 0xFB,
+        kAllLedOffL  = 0xFC,
+        kAllLedOffH  = 0xFD,
+    };
 
-    bool isValid();
+    // Bits
+    enum Bits
+    {
+        kRestart     = 0x80,
+        kSleep       = 0x10,
+        kAllCall     = 0x01,
+        kInvert      = 0x10,
+        kOutDrive    = 0x04,
+    };
 
-    virtual void write8 (int deviceRegister, int data);
-    virtual int read8 (int deviceRegister);
+    PWM (int deviceAddress);
+
+    /** Sets the PWM frequency */
+    void setFrequency (double frequency);
+
+    /** Sets a single PWM channel */
+    void setChannel (int channel, int on, int off);
+
+    /** Sets all the PWM channels */
+    void setAll (int on, int off);
 
 private:
-    void openHandle();
-    void closeHandle();
-
-    void selectDevice();
-    void writeByteData (int deviceRegister, int data);
-    int readByteData (int deviceRegister);
-
-    const int busNumber;
-    const int address;
-    int handle;
-};
-
-// using wiringPi 
-class I2CDeviceWP
-{
-    I2CDeviceWP(int i2cAddress);
-    ~I2CDeviceWP();
-    void write8(int deviceRegister, int data) override;
-    int read8(int deviceRegister) override;
-    bool isValid();
-
-    private:
-    const int address;
-    int handle;
+    I2CDevice device;
 };

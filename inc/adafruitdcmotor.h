@@ -1,5 +1,5 @@
 /**
- *  i2cdevice.h
+ *  adafruitdcmotor.h
  *
  *  MIT License
  *
@@ -26,46 +26,34 @@
 
 #pragma once
 
-#include <linux/i2c-dev.h>
+#include "pwm.h"
 
-/** Represents an I2C device.
- *  using linux device tree
- *  Uses ioctl to control an I2C device.
- */
-class I2CDevice
+class AdafruitDCMotor
 {
 public:
-    I2CDevice (int i2cAddress);
-    ~I2CDevice();
+    enum Command
+    {
+        kForward = 1,
+        kBackward = 2,
+        kBrake = 3,
+        kRelease = 4,
+    };
 
-    bool isValid();
+    AdafruitDCMotor (PWM& pwm, int index);
 
-    virtual void write8 (int deviceRegister, int data);
-    virtual int read8 (int deviceRegister);
+    /** Makes the motor perform an action.
+     *  @see Commands
+     */
+    void run (Command command);
+
+    /** Sets the speed of the motor.
+     *  Expects a value between 0 and 255 inclusive.
+     */
+    void setSpeed (int speed);
 
 private:
-    void openHandle();
-    void closeHandle();
+    void setPin (int pin, bool enabled);
 
-    void selectDevice();
-    void writeByteData (int deviceRegister, int data);
-    int readByteData (int deviceRegister);
-
-    const int busNumber;
-    const int address;
-    int handle;
-};
-
-// using wiringPi 
-class I2CDeviceWP
-{
-    I2CDeviceWP(int i2cAddress);
-    ~I2CDeviceWP();
-    void write8(int deviceRegister, int data) override;
-    int read8(int deviceRegister) override;
-    bool isValid();
-
-    private:
-    const int address;
-    int handle;
+    PWM& controller;
+    int pwmPin = 0, in1Pin = 0, in2Pin = 0;
 };
