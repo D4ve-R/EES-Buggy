@@ -56,7 +56,7 @@ void I2CDeviceWP::write16 (int deviceRegister, int data)
 int I2CDeviceWP::read(void)
 {
     if (isValid())
-        return wiringPiI2CRead();
+        return wiringPiI2CRead(handle);
 
     return -1;
 }

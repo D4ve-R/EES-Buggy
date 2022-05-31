@@ -3,8 +3,8 @@
 #include "i2cdevice.h"
 
 // default i2c address
-#define GY521_I2C_ADDR      0x68U
-//#define GY_521_I2C_ADDR   0x69U
+#define GY521_I2C_ADDR      0x68
+//#define GY_521_I2C_ADDR   0x69
 
 // mp60X0 register addresses
 #define GY521_PWR_MGMT_1    0x6BU
@@ -22,9 +22,11 @@
  */
 class GY521
 {
+    public:
     GY521(int i2cAddress = GY521_I2C_ADDR);
+    ~GY521();
 
-    void readAcc();
+    void readAccel();
     void readGyro();
     void readTemp();
 

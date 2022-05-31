@@ -4,13 +4,17 @@
  * Constructor for gy521
  * uint8_t i2cAddress : i2c address of device
  */
-GY521::GY521(uint8_t i2cAddress):
+GY521::GY521(int i2cAddress):
     device {i2cAddress},
     acc_x {0}, acc_y {0}, acc_z {0}, 
     gy_x {0}, gy_y {0}, gy_z{0},
-    temp {0},
+    temp {0}
 {
     device.write8(GY521_PWR_MGMT_1, 0x00);
+}
+
+GY521::~GY521()
+{
 }
 
 void GY521::readAccel()
@@ -48,12 +52,13 @@ void GY521::readTemp()
     */
 }
 
-void readReg(int* data, int regAddr)
+/*
+void GY521::readReg(int* data, int regAddr)
 {
     int _data = device.read8(regAddr);
     _data = _data << 8;
     _data = _data | device.read8(regAddr + 1);
     data = _data;
 }
-
+*/
 

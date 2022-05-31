@@ -1,0 +1,37 @@
+CC=g++
+
+SDIR=src
+IDIR=inc
+ODIR=build
+
+CFLAGS=-std=c++11 -Wall -I $(IDIR)
+
+LIBS=-lwiringPi
+OBJ= $(wildcard src/*.o)
+list= $(OBJ:.cpp=.o)
+
+main: $(list)
+	$(CC) $^ -o $@ $(CFLAGS) $(LIBS)
+	mkdir $(ODIR)
+	mv main $(ODIR)
+
+main.o: buggy.o 
+
+buggy.o: ultrasonic.o gy521.o adafruitmotorhat.o
+
+gy521.o: i2cdeviceWP.o
+
+adafruitmotorhat.o: pwm.o  adafruitdcmotor.o
+
+adafruitdcmotor.o: pwm.o
+
+pwm.o: i2cdeviceWP.o
+
+ultrasonic.o:
+i2cdeviceWP.o:
+
+%.o: %.cpp
+	$(CC) -c $(SDIR)/$< -o $(ODIR)/$@ $(CFLAGS) $(LIBS)
+
+clean: 
+	rm -rf $(ODIR)

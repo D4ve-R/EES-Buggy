@@ -2,7 +2,7 @@
 
 int main()
 {
-  Buggy bug();
+  Buggy bug = Buggy();
   while(1);
 
 

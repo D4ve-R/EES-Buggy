@@ -29,7 +29,7 @@
 #include "i2cdevice.h"
 
 // if defined wiringPi is used to handle the i2c-device
-//#define i2cDeviceWP 
+#define i2cDeviceWP 
 
 class PWM
 {

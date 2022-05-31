@@ -1,12 +1,12 @@
 #include "buggy.h"
 
-
 /**
  * Constructor for buggy
  *
- */
+ */ 
 Buggy::Buggy():
   speed {0},
+  hat {}
 {
   // get all connected motors
   for(int i = 1; i < 5; i++)
@@ -32,7 +32,7 @@ void Buggy::moveForward()
   for(auto motor : motors)
   {
     motor->setSpeed(255);
-    motor->run(AdafriutDCMotor::kForward);
+    motor->run(AdafruitDCMotor::kForward);
   }
 }
 
@@ -44,7 +44,7 @@ void Buggy::moveBackward()
   for(auto motor : motors)
   {
     motor->setSpeed(255);
-    motor->run(AdafriutDCMotor::kBackward);
+    motor->run(AdafruitDCMotor::kBackward);
   }
 
 }

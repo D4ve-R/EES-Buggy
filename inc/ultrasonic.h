@@ -5,13 +5,16 @@
  * like HC-SR04
  */
 class Ultrasonic {
-    Ultrasonic(uint8_t _pinTrigger, uint8_t _pinEcho);
-    
+    public:
+    Ultrasonic(){}
+    Ultrasonic(int _pinTrigger, int _pinEcho);
+    ~Ultrasonic(){}
+
     double distance(void);
 
     private:
-    uint8_t pinTrigger;
-    uint8_t pinEcho;
+    int pinTrigger;
+    int pinEcho;
 
     double timeToDistanceCM(double timeS);
     void trigger(void);

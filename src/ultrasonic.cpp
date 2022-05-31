@@ -7,9 +7,9 @@
  * uint8_t _pinTrigger : pin number of trigger pin
  * uint8_t _pinEcho    : pin number of echo pin
  */
-Ultrasonic::Ultrasonic(uint8_t _pinTrigger, uint8_t _pinEcho):
+Ultrasonic::Ultrasonic(int _pinTrigger, int _pinEcho):
     pinTrigger  {_pinTrigger},
-    pinEcho     {_pinEcho},
+    pinEcho     {_pinEcho}
 {
     pinMode(pinTrigger, OUTPUT);
     pinMode(pinEcho, INPUT);
@@ -27,7 +27,8 @@ double Ultrasonic::distance(void)
 {
     trigger();
 
-    auto start, stop = std::chrono::steady_clock::now();
+    auto start = std::chrono::steady_clock::now();
+    auto stop = std::chrono::steady_clock::now();
 
     while(digitalRead(pinEcho) == 0)
         start = std::chrono::steady_clock::now();
@@ -39,7 +40,7 @@ double Ultrasonic::distance(void)
     std::chrono::duration<double> time = stop - start;
 
     // divided by 2 to measure only one way
-    return timeToDistanceCM(time / 2.0);
+    return timeToDistanceCM(time.count() / 2.0);
 }
 
 /**
@@ -48,7 +49,7 @@ double Ultrasonic::distance(void)
  * double timeS : time in seconds
  * returns distance in centimeter
  */
-double timeToDistanceCM(double timeS)
+double Ultrasonic::timeToDistanceCM(double timeS)
 {
     // sound speed is 34320 cm/s
     return timeS * 34320;
@@ -57,7 +58,7 @@ double timeToDistanceCM(double timeS)
 /**
  * triggers sensor to measurement
  */
-void trigger(void)
+void Ultrasonic::trigger(void)
 {
     digitalWrite(pinTrigger, HIGH);
     delayMicroseconds(10);
