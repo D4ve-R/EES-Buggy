@@ -61,6 +61,7 @@ private:
  */
 class I2CDeviceWP
 {
+    public:
     I2CDeviceWP(int i2cAddress);
     ~I2CDeviceWP();
 

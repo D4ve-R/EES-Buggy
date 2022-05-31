@@ -1,6 +1,6 @@
 
 buggy: buggy.o
-	g++ buggy.o -o buggy -v
+	g++ buggy.o -o buggy 
 	mkdir build
 	mv buggy build
 	rm -f buggy.o
