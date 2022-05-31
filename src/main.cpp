@@ -2,8 +2,7 @@
 
 int main()
 {
-  Buggy buggy;
-
+    Buggy bug;
   while(1);
 
 

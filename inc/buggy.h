@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "adafruitmotohat.h"
+#include "adafruitmotorhat.h"
 #include "ultrasonic.h"
 #include "gy521.h"
 
@@ -13,19 +13,22 @@
  */
 class Buggy
 {
-  Buggy();
-  ~Buggy();
+    public:
 
-  void moveForward();
-  void moveBackward();
-  void turnLeft(int deg = 90);
-  void turnRight(int deg = 90);
-  void stop();
-  void setSpeed(int _speed)
+    Buggy();
+    ~Buggy();
 
-  private:
+    void moveForward();
+    void moveBackward();
+    void turnLeft(int deg = 90);
+    void turnRight(int deg = 90);
+    void stop();
+    void setSpeed(int _speed);
+
+    private:
+
     int speed;
-    std::vector<std::shared_ptr<AdafruitDCMotor>> motors;
+    std::vector<std::shared_ptr<AdafruitDCMotor> > motors;
     AdafruitMotorHAT hat;
     Ultrasonic sonic;
     GY521 gyro;

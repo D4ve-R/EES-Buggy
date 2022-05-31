@@ -1,12 +1,12 @@
 
 buggy: buggy.o
-	gcc buggy.o -o buggy
+	g++ buggy.o -o buggy -v
 	mkdir build
 	mv buggy build
 	rm -f buggy.o
 
 buggy.o: 
-	gcc -c src/main.cpp -I inc -o buggy.o
+	g++ -c src/main.cpp  -I inc -o buggy.o -std=c++11
 
 clean: 
 	rm -rf build

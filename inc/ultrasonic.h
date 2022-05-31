@@ -13,6 +13,6 @@ class Ultrasonic {
     uint8_t pinTrigger;
     uint8_t pinEcho;
 
-    double timeToDistanceCM(double timeS)
+    double timeToDistanceCM(double timeS);
     void trigger(void);
 };

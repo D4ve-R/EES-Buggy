@@ -47,5 +47,5 @@ public:
 private:
     PWM controller;
     const int frequency;
-    std::vector<std::shared_ptr<AdafruitDCMotor>> dcMotors;
+    std::vector<std::shared_ptr<AdafruitDCMotor> > dcMotors;
 };

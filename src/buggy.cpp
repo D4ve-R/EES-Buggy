@@ -8,7 +8,6 @@
 Buggy::Buggy():
   speed {0},
 {
-
   // get all connected motors
   for(int i = 1; i < 5; i++)
   {
@@ -18,7 +17,6 @@ Buggy::Buggy():
       motor->setSpeed(speed);
     }
   }
-
 }
 
 Buggy::~Buggy()
@@ -96,3 +94,4 @@ void Buggy::setSpeed(int _speed)
 
   speed = _speed;
 }
+
