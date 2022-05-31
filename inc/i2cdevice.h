@@ -55,7 +55,10 @@ private:
     int handle;
 };
 
-// using wiringPi 
+/**
+ * Represents an I2C device.
+ * using wiringPiI2C lib
+ */
 class I2CDeviceWP
 {
     I2CDeviceWP(int i2cAddress);
