@@ -1,7 +1,12 @@
-#include "motorhat.h"
-#include "ultrasonic.h"
-#include "gy521.h"
+#include "buggy.h"
 
-int main(){
+int main()
+{
+  Buggy buggy;
 
+  while(1);
+
+
+
+  return 0;
 }
