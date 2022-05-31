@@ -8,12 +8,11 @@ CFLAGS=-std=c++11 -Wall -I $(IDIR)
 
 LIBS=-lwiringPi
 
-OBJ= $(wildcard src/*.cpp)
-LIST= $(OBJ:.cpp=.o)
-
 main: main.o 
 	$(CC) main.o buggy.o ultrasonic.o gy521.o  pwm.o i2cdeviceWP.o adafruitmotorhat.o adafruitdcmotor.o -o $(ODIR)/$@ $(LIBS) $(CFLAGS)
 	rm *.o
+	@echo -e '\u2705'
+	@echo created executable $@ in $(ODIR) 
 
 main.o: buggy.o 
 	$(CC) -c $(SDIR)/main.cpp -o $@ $(CFLAGS)
