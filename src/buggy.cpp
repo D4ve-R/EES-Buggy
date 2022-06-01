@@ -10,12 +10,17 @@
  */ 
 Buggy::Buggy():
   speed {0},
+  estSpeedMS {0.0},
+  speedMax {0.0},
   hat {}
 {
-  // setup wiringPi using wPi gpio mapping
+  // setup wiringPi using wiringPi gpio mapping
+  // needed for Led:: & Ultrasonic::
+  // should only be called once
   wiringPiSetup();
 
-  sonic = Ultrasonic(GPIO_0, GPIO_1);
+  sonic = HCSR04(GPIO_0, GPIO_1);
+  backlight = Led(GPIO_2);
 
   // get all connected motors
   for(int i = 1; i < 5; i++)
@@ -44,7 +49,7 @@ void Buggy::drive()
 {
   while(1)
   {
-    if(sonic.distance() < 5)
+    if(sonic.distance() < HCSR04_MIN_RANGE_CM + 1)
     {
       stop();
       return;
@@ -57,14 +62,8 @@ void Buggy::drive()
 
     while(sonic.distance() > 15)
     {
-      for(auto motor : motors)
-      {
-        motor->setSpeed(127 - sonic.distance());
-        motor->run(AdafruitDCMotor::kForward);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      }
+      moveForward((int)(MAX_SPEED/2 - sonic.distance()), 500);
     }
-
   }
 
   stop();
@@ -78,10 +77,8 @@ void Buggy::drive()
  * int _speed : speed of driving between 0 and 255
  * int delay_ms : time of driving in milliseconds
  */
-void Buggy::move(AdafruitDCMotor::Command command, int _speed, int delay_ms)
+void Buggy::move(AdafruitDCMotor::Command command, int delay_ms)
 {
-    setSpeed(_speed);
-
     for(auto motor : motors)
     {
       motor->setSpeed(speed);
@@ -93,18 +90,36 @@ void Buggy::move(AdafruitDCMotor::Command command, int _speed, int delay_ms)
 
 /**
  * move buggy forward
+ * estimates speed while driving
+ * int _speed   : speed between 0 - 255, default(255)
+ * int delay_ms : time to drive in milliseconds, default(1000)
  */
 void Buggy::moveForward(int _speed, int delay_ms)
 {
-  move(AdafruitDCMotor::kForward, _speed, delay_ms);
+  setSpeed(_speed);
+
+  double dist = sonic.distance();
+  move(AdafruitDCMotor::kForward, delay_ms);
+  dist -= sonic.distance();
+  
+  estimateSpeed(dist, delay_ms);
 }
 
 /**
  * move buggy backward
+ * estimates speed while driving
+ * int _speed   : speed between 0 - 255, default(255)
+ * int delay_ms : time to drive in milliseconds, default(1000)
  */
 void Buggy::moveBackward(int _speed, int delay_ms)
 {
-  move(AdafruitDCMotor::kBackward, _speed, delay_ms);
+  setSpeed(_speed);
+
+  double dist = sonic.distance();
+  move(AdafruitDCMotor::kBackward, delay_ms);
+  dist = sonic.distance() - dist;
+
+  estimateSpeed(dist, delay_ms);
 }
 
 /**
@@ -159,8 +174,8 @@ void Buggy::rotate(int deg, bool clockwise)
 {
   if (motors.size() == 2)
   {
-    motors[0]->setSpeed(MAX_SPEED);
-    motors[1]->setSpeed(MAX_SPEED);
+    motors[0]->setSpeed(MAX_SPEED/2);
+    motors[1]->setSpeed(MAX_SPEED/2);
 
     if (clockwise)
     {
@@ -184,6 +199,28 @@ void Buggy::stop()
 {
   for(auto motor : motors)
     motor->run(AdafruitDCMotor::kBrake);
+}
+
+double Buggy::getEstSpeedMS()
+{
+  return estSpeedMS;
+}
+
+double Buggy::getSpeedMax()
+{
+  return speedMax;
+}
+
+/**
+ * estimate speed in meter/seconds from distance & time
+ * double& distCM : distance travelled in centimeter
+ * int& timeMS : time travelled in milliseconds
+ */
+void Buggy::estimateSpeed(double& distCM, int& timeMS)
+{
+  estSpeedMS = (distCM/100.0) / (timeMS/1000.0);
+
+  speedMax = estSpeedMS > speedMax ? estSpeedMS : speedMax;
 }
 
 void Buggy::releaseAll()

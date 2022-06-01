@@ -1,4 +1,4 @@
-#include "ultrasonic.h"
+#include "hcsr04.h"
 
 #include <wiringPi.h>
 #include <chrono>
@@ -8,14 +8,18 @@
  * uint8_t _pinTrigger : pin number of trigger pin
  * uint8_t _pinEcho    : pin number of echo pin
  */
-Ultrasonic::Ultrasonic(uint8_t _pinTrigger, uint8_t _pinEcho):
+HCSR04::HCSR04(uint8_t _pinTrigger, uint8_t _pinEcho):
     pinTrigger  {_pinTrigger},
     pinEcho     {_pinEcho}
 {
+    // will be handled in parent class Buggy
+    // can only be called once
+    // wiringPiSetup();
+
     pinMode(pinTrigger, OUTPUT);
     pinMode(pinEcho, INPUT);
 
-    // enable pull down resistor of approx. 50kOhm
+    // enable built-in pull down resistor of approx. 50kOhm
     pullUpDnControl(pinEcho, PUD_DOWN);
 
     digitalWrite(pinTrigger, LOW);
@@ -27,12 +31,12 @@ Ultrasonic::Ultrasonic(uint8_t _pinTrigger, uint8_t _pinEcho):
  * calculate distance in cm
  * returns distance[cm]
  */
-double Ultrasonic::distance(void)
+double HCSR04::distance(void)
 {
-    trigger();
-
     auto start = std::chrono::steady_clock::now();
     auto stop = std::chrono::steady_clock::now();
+
+    trigger();
 
     while(digitalRead(pinEcho) == 0)
         start = std::chrono::steady_clock::now();
@@ -42,6 +46,9 @@ double Ultrasonic::distance(void)
 
     // time in seconds
     std::chrono::duration<double> time = stop - start;
+
+    // prevent over trigger, see datasheet
+    delay(60);
 
     // divided by 2 to measure only one way
     return timeToDistanceCM(time.count() / 2.0);
@@ -53,7 +60,7 @@ double Ultrasonic::distance(void)
  * double timeS : time in seconds
  * returns distance in centimeter
  */
-double Ultrasonic::timeToDistanceCM(double timeS)
+double HCSR04::timeToDistanceCM(double timeS)
 {
     // sound speed is 34320 cm/s
     return timeS * 34320;
@@ -62,7 +69,7 @@ double Ultrasonic::timeToDistanceCM(double timeS)
 /**
  * triggers sensor to measurement
  */
-void Ultrasonic::trigger(void)
+void HCSR04::trigger(void)
 {
     digitalWrite(pinTrigger, LOW);
     delayMicroseconds(2);
@@ -71,3 +78,4 @@ void Ultrasonic::trigger(void)
     delayMicroseconds(10);
     digitalWrite(pinTrigger, LOW);
 }
+

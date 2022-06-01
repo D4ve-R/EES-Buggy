@@ -5,7 +5,8 @@
 class Led
 {
   public:
-    Led(int _pinNumber = 0);
+    Led(){}
+    Led(int _pinNumber);
     ~Led();
     
     void on();
