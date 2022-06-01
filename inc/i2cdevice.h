@@ -61,7 +61,11 @@ private:
  */
 class I2CDeviceWP
 {
+    const int address;
+    int handle;
+
     public:
+
     I2CDeviceWP(int i2cAddress);
     ~I2CDeviceWP();
 
@@ -75,7 +79,4 @@ class I2CDeviceWP
 
     bool isValid();
 
-    private:
-    const int address;
-    int handle;
 };

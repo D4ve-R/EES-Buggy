@@ -4,6 +4,8 @@
 
 class Led
 {
+    int pinNumber;
+
   public:
     Led(){}
     Led(int _pinNumber);
@@ -13,6 +15,4 @@ class Led
     void off();
     void blink();
 
-  private:
-    int pinNumber;
 };

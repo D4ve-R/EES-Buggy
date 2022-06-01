@@ -24,6 +24,11 @@
  */
 class GY521
 {
+    int16_t acc_x, acc_y, acc_z;
+    int16_t gy_x, gy_y, gy_z;
+    int16_t temp;
+    I2CDeviceWP device;
+
     public:
     GY521(uint8_t i2cAddress = GY521_I2C_ADDR);
     ~GY521();
@@ -33,10 +38,5 @@ class GY521
     void readTemp();
     void readData();
 
-    private:
-    int16_t acc_x, acc_y, acc_z;
-    int16_t gy_x, gy_y, gy_z;
-    int16_t temp;
-    I2CDeviceWP device;
 };
 

@@ -21,6 +21,11 @@ chmod +x setUpWlan.sh
 ./setUpWlan.sh
 ```
 5. Disconnect pi from lan and check for raspianWifi 
+6. Connect to raspianWifi with password raspberry
+7.
+```
+ssh pi@192.168.4.1
+```
  
 ### Building
  

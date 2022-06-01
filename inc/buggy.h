@@ -22,6 +22,19 @@
  */
 class Buggy
 {
+    int speed;
+    double estSpeedMS;
+    double speedMax;
+
+    std::vector<std::shared_ptr<AdafruitDCMotor> > motors;
+    AdafruitMotorHAT hat;
+    HCSR04 sonic;
+    GY521 gyro;
+    Led backlight;
+
+    void releaseAll();
+    void setSpeed(int _speed);
+
     public:
 
     Buggy();
@@ -40,21 +53,6 @@ class Buggy
     double getEstSpeedMS();
     double getSpeedMax();
     void estimateSpeed(double& dist, int& time);
-
-    private:
-
-    int speed;
-    double estSpeedMS;
-    double speedMax;
-
-    std::vector<std::shared_ptr<AdafruitDCMotor> > motors;
-    AdafruitMotorHAT hat;
-    HCSR04 sonic;
-    GY521 gyro;
-    Led backlight;
-
-    void releaseAll();
-    void setSpeed(int _speed);
 
 };
 

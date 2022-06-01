@@ -10,6 +10,12 @@
  * like HC-SR04
  */
 class HCSR04{
+    uint8_t pinTrigger;
+    uint8_t pinEcho;
+
+    double timeToDistanceCM(double timeS);
+    void trigger(void);
+
     public:
     HCSR04(){}
     HCSR04(uint8_t _pinTrigger, uint8_t _pinEcho);
@@ -17,10 +23,4 @@ class HCSR04{
 
     double distance(void);
 
-    private:
-    uint8_t pinTrigger;
-    uint8_t pinEcho;
-
-    double timeToDistanceCM(double timeS);
-    void trigger(void);
 };
