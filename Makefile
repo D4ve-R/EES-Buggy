@@ -9,7 +9,7 @@ CFLAGS=-std=c++11 -Wall -I $(IDIR)
 LIBS=-lwiringPi
 
 main: main.o 
-	$(CC) main.o buggy.o ultrasonic.o gy521.o  pwm.o i2cdeviceWP.o adafruitmotorhat.o adafruitdcmotor.o -o $(ODIR)/$@ $(LIBS) $(CFLAGS)
+	$(CC) main.o buggy.o ultrasonic.o gy521.o  pwm.o i2cdeviceWP.o adafruitmotorhat.o adafruitdcmotor.o led.o -o $(ODIR)/$@ $(LIBS) $(CFLAGS)
 	rm *.o
 	@echo -e '\u2705'
 	@echo created executable $@ in $(ODIR) 
@@ -17,7 +17,7 @@ main: main.o
 main.o: buggy.o 
 	$(CC) -c $(SDIR)/main.cpp -o $@ $(CFLAGS)
 
-buggy.o: ultrasonic.o gy521.o adafruitmotorhat.o
+buggy.o: ultrasonic.o gy521.o adafruitmotorhat.o led.o
 	$(CC) -c $(SDIR)/buggy.cpp -o $@ $(CFLAGS)
 
 gy521.o: i2cdeviceWP.o
@@ -31,6 +31,9 @@ adafruitdcmotor.o: pwm.o
 
 pwm.o: i2cdeviceWP.o
 	$(CC) -c $(SDIR)/pwm.cpp -o $@ $(CFLAGS)
+
+led.o:
+	$(CC) -c $(SDIR)/led.cpp -o $@ $(CFLAGS)
 
 i2cdeviceWP.o:
 	$(CC) -c $(SDIR)/i2cdeviceWP.cpp -o $@ $(CFLAGS)

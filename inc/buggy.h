@@ -5,11 +5,15 @@
 #include "adafruitmotorhat.h"
 #include "ultrasonic.h"
 #include "gy521.h"
+#include "led.h"
 
 
 #define MAX_SPEED   255
 #define MIN_SPEED   0
 
+// gpio numbers using wiringPi mapping
+#define GPIO_0    0
+#define GPIO_1    1
 
 /**
  * Represents the buggy
@@ -39,6 +43,7 @@ class Buggy
     AdafruitMotorHAT hat;
     Ultrasonic sonic;
     GY521 gyro;
+    Led backlight;
 
     void releaseAll();
     void setSpeed(int _speed);

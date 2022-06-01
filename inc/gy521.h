@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #include "i2cdevice.h"
 
 // default i2c address
@@ -23,17 +25,18 @@
 class GY521
 {
     public:
-    GY521(int i2cAddress = GY521_I2C_ADDR);
+    GY521(uint8_t i2cAddress = GY521_I2C_ADDR);
     ~GY521();
 
     void readAccel();
     void readGyro();
     void readTemp();
+    void readData();
 
     private:
-    int acc_x, acc_y, acc_z;
-    int gy_x, gy_y, gy_z;
-    int temp;
+    int16_t acc_x, acc_y, acc_z;
+    int16_t gy_x, gy_y, gy_z;
+    int16_t temp;
     I2CDeviceWP device;
 };
 

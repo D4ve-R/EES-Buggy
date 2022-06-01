@@ -1,4 +1,5 @@
 #include "ultrasonic.h"
+
 #include <wiringPi.h>
 #include <chrono>
 
@@ -7,15 +8,18 @@
  * uint8_t _pinTrigger : pin number of trigger pin
  * uint8_t _pinEcho    : pin number of echo pin
  */
-Ultrasonic::Ultrasonic(int _pinTrigger, int _pinEcho):
+Ultrasonic::Ultrasonic(uint8_t _pinTrigger, uint8_t _pinEcho):
     pinTrigger  {_pinTrigger},
     pinEcho     {_pinEcho}
 {
     pinMode(pinTrigger, OUTPUT);
     pinMode(pinEcho, INPUT);
 
+    // enable pull down resistor of approx. 50kOhm
+    pullUpDnControl(pinEcho, PUD_DOWN);
+
     digitalWrite(pinTrigger, LOW);
-    delay(200);
+    delay(100);
 }
 
 /*
@@ -60,6 +64,9 @@ double Ultrasonic::timeToDistanceCM(double timeS)
  */
 void Ultrasonic::trigger(void)
 {
+    digitalWrite(pinTrigger, LOW);
+    delayMicroseconds(2);
+
     digitalWrite(pinTrigger, HIGH);
     delayMicroseconds(10);
     digitalWrite(pinTrigger, LOW);

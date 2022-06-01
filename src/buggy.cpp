@@ -3,9 +3,6 @@
 #include <thread>
 #include <wiringPi.h>
 
-// gpio numbers using wiringPi mapping
-#define GPIO_0    0
-#define GPIO_1    1
 
 /**
  * Constructor for buggy
