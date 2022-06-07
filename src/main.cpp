@@ -1,10 +1,21 @@
+#include <signal.h>
+
 #include "buggy.h"
+
+void sigHandler(int sigNum)
+{
+  // TODO
+  // cut all sensors
+  exit(sigNum);
+}
 
 int main()
 {
-  Buggy bug = Buggy();
-  while(1);
+  signal(SIGINT, sigHandler);
 
+  Buggy bug;
+
+  while(1);
 
 
   return 0;
