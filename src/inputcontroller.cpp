@@ -4,14 +4,14 @@
 #include <ncurses.h>
 
 InputController::InputController(Buggy& _buggy):
-  buggy {_buggy}
 {
+    buggy = &_buggy;
   initsrc();
 }
 
 void InputController::play()
 {
-  char c = 0;
+  int c = 0;
   std::cout << "Press q to quit" << std::endl;
 
   do
@@ -19,7 +19,7 @@ void InputController::play()
     c = getch();
     switch(c)
     {
-      case KEY_UP
+        case KEY_UP:
       case 'W':
       case 'w':
         buggy->moveForward();
@@ -46,6 +46,9 @@ void InputController::play()
       default:
         break;
     }
+
+    c = 0;
+
   } while(c != 'Q' && c != 'q');
 
   endwin();
