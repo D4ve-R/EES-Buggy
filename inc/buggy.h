@@ -58,5 +58,8 @@ class Buggy
     double getSpeedMax();
     void estimateSpeed(double& dist, int& time);
 
+    // fpr development purposes
+    void _debug();
+
 };
 

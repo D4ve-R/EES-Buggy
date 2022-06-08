@@ -159,7 +159,7 @@ void Buggy::turnLeft(int deg)
     motorL->run(AdafruitDCMotor::kForward);
     motorR->run(AdafruitDCMotor::kForward);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds((deg * 2/360)*1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds((deg/360)*1000));
   }
 }
 
@@ -183,7 +183,7 @@ void Buggy::turnRight(int deg)
     motorL->run(AdafruitDCMotor::kForward);
     motorR->run(AdafruitDCMotor::kForward);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds((deg * 2/360)*1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds((deg/360)*1000));
   }
 
 }
@@ -284,4 +284,9 @@ bool Buggy::safetyCheck()
     }
 
     return true;
+}
+
+void Buggy::_debug()
+{
+    gyro->readData();
 }

@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 
     buggy = new Buggy();
     while(1)
-        buggy->moveForward(MAX_SPEED, 10);
+        buggy->_debug();
 
     return 0;
 }

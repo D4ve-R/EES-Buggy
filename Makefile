@@ -17,6 +17,7 @@ main: main.o $(OBJ)
 
 wasd: wasd.o inputcontroller.o $(OBJ)
 	$(CC) wasd.o $(OBJ) inputcontroller.o -o $(ODIR)/$@ $(LIBS) -lncurses $(CFLAGS) 
+	rm *.o
 	@echo created executable $@ in $(ODIR) 
 	
 main.o:  

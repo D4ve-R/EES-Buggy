@@ -12,11 +12,14 @@ GY521::GY521(uint8_t i2cAddress):
     gy_x {0}, gy_y {0}, gy_z{0},
     temp {0}
 {
+    // disable sleep bit
     device.write8(GY521_PWR_MGMT_1, 0x00);
 }
 
 GY521::~GY521()
 {
+    // set sleep bit
+    device.write8(GY521_PWR_MGMT_1, 0x40);
 }
 
 void GY521::readAccel()
@@ -59,8 +62,9 @@ void GY521::readData()
   readAccel();
   readGyro();
   readTemp();
-  std::cout << acc_x << std::endl;
-  std::cout << gy_x << std::endl;
+  std::cout << "ACC: "<< acc_x << acc_y << acc_z << std::endl;
+  std::cout << "GY: " << gy_x << gy_y << gy_z << std::endl;
+  std::cout << "Temp: " << temp << std::endl;
 }
 
 /*

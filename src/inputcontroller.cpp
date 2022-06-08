@@ -7,6 +7,7 @@ InputController::InputController(Buggy& _buggy):
 {
     buggy = &_buggy;
   initsrc();
+  noecho();
 }
 
 void InputController::play()
