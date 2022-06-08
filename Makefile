@@ -4,17 +4,26 @@ SDIR=src
 IDIR=inc
 ODIR=build
 
+OBJ=buggy.o hcsr04.o gy521.o  pwm.o i2cdeviceWP.o adafruitmotorhat.o adafruitdcmotor.o led.o
+
 CFLAGS=-std=c++11 -Wall -I$(IDIR)
 
 LIBS=-lwiringPi
 
-main: main.o libbuggy.a
-	$(CC) main.o buggy.o hcsr04.o gy521.o  pwm.o i2cdeviceWP.o adafruitmotorhat.o adafruitdcmotor.o led.o -o $(ODIR)/$@ $(LIBS) $(CFLAGS)
+main: main.o $(OBJ)
+	$(CC) main.o $(OBJ) -o $(ODIR)/$@ $(LIBS) $(CFLAGS)
 	rm *.o
 	@echo created executable $@ in $(ODIR) 
 
+wasd: wasd.o inputcontroller.o $(OBJ)
+	$(CC) wasd.o $(OBJ) inputcontroller.o -o $(ODIR)/$@ $(LIBS) -lncurses $(CFLAGS) 
+	@echo created executable $@ in $(ODIR) 
+	
 main.o:  
 	$(CC) -c $(SDIR)/main.cpp -o $@ $(CFLAGS)
+
+wasd.o:
+	$(CC) -c $(SDIR)/wasd.cpp -o $@ $(CFLAGS)
 
 libbuggy.a: buggy.o
 	ar -r -o $(ODIR)/libbuggy.a buggy.o hcsr04.o gy521.o  pwm.o i2cdeviceWP.o adafruitmotorhat.o adafruitdcmotor.o led.o
@@ -43,6 +52,8 @@ i2cdeviceWP.o:
 hcsr04.o:
 	$(CC) -c $(SDIR)/hcsr04.cpp -o $@ $(CFLAGS)
 
+inputcontroller.o:
+	$(CC) -c $(SDIR)/inputcontroller.cpp -o $@ $(CFLAGS)
 
 clean: 
 	rm -rf $(ODIR)/*
