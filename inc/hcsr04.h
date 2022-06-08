@@ -17,9 +17,8 @@ class HCSR04{
     void trigger(void);
 
     public:
-    HCSR04(){}
     HCSR04(uint8_t _pinTrigger, uint8_t _pinEcho);
-    ~HCSR04(){}
+    ~HCSR04();
 
     double distance(void);
 

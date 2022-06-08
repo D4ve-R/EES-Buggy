@@ -1,5 +1,7 @@
 #include "gy521.h"
 
+#include <iostream>
+
 /**
  * Constructor for gy521
  * uint8_t i2cAddress : i2c address of device
@@ -57,6 +59,8 @@ void GY521::readData()
   readAccel();
   readGyro();
   readTemp();
+  std::cout << acc_x << std::endl;
+  std::cout << gy_x << std::endl;
 }
 
 /*

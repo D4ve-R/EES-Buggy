@@ -1,5 +1,9 @@
 #include "led.h"
 
+/**
+ * Constructor for Led
+ * int _pinNumber : GPIO pin number
+ */
 Led::Led(int _pinNumber):
   pinNumber {_pinNumber}
 {
@@ -10,18 +14,28 @@ Led::Led(int _pinNumber):
 
 Led::~Led()
 {
+    off();
 }
 
+/**
+ * turn led on
+ */
 void Led::on()
 {
   digitalWrite(pinNumber, HIGH);
 }
 
+/**
+ * turn led off
+ */
 void Led::off()
 {
   digitalWrite(pinNumber, LOW);
 }
 
+/**
+ * blick led once
+ */
 void Led::blink()
 {
   on();

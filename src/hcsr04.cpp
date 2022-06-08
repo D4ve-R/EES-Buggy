@@ -16,14 +16,21 @@ HCSR04::HCSR04(uint8_t _pinTrigger, uint8_t _pinEcho):
     // can only be called once
     // wiringPiSetup();
 
+    // set pin modes 
     pinMode(pinTrigger, OUTPUT);
     pinMode(pinEcho, INPUT);
 
-    // enable built-in pull down resistor of approx. 50kOhm
+    // enable built-in pull down resistor of min. 50kOhm
     pullUpDnControl(pinEcho, PUD_DOWN);
 
     digitalWrite(pinTrigger, LOW);
-    delay(100);
+    delay(10);
+}
+
+HCSR04::~HCSR04()
+{
+    digitalWrite(pinTrigger, LOW);
+    digitalWrite(pinEcho, LOW);
 }
 
 /*
@@ -33,27 +40,35 @@ HCSR04::HCSR04(uint8_t _pinTrigger, uint8_t _pinEcho):
  */
 double HCSR04::distance(void)
 {
-    auto start = std::chrono::steady_clock::now();
-    auto stop = std::chrono::steady_clock::now();
+    uint32_t start = micros();
+    uint32_t time = 0;
 
     trigger();
 
     while(digitalRead(pinEcho) == 0)
-        start = std::chrono::steady_clock::now();
-    
-    // TODO
-    // if bigger than 200ms, no detection
+        start = micros();
+
     while(digitalRead(pinEcho) == 1)
-        stop = std::chrono::steady_clock::now();
+    {
+        time = micros() - start;
+
+        // if bigger than 20ms, no detection
+        if((time/1000) > 21)
+        {
+            // calculates to MAX_RANGE
+            time = 23309;
+            break;
+        }
+    }
 
     // time in seconds
-    std::chrono::duration<double> time = stop - start;
+    //std::chrono::duration<double> time = stop - start;
 
     // prevent over trigger, see datasheet
     delay(60);
 
     // divided by 2 to measure only one way
-    return timeToDistanceCM(time.count() / 2.0);
+    return timeToDistanceCM(time / 1000000.0);
 }
 
 /**
@@ -65,7 +80,7 @@ double HCSR04::distance(void)
 double HCSR04::timeToDistanceCM(double timeS)
 {
     // sound speed is 34320 cm/s
-    return timeS * 34320;
+    return (timeS * 34320.0) / 2;
 }
 
 /**

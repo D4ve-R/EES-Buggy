@@ -3,21 +3,27 @@
 
 #include "buggy.h"
 
+Buggy* buggy = nullptr;
 
+/**
+ * Interrupt handler for ctrl-c keyboard interrupt
+ */
 void sigHandler(int sigNum)
 {
-  exit(sigNum);
+    if(buggy != nullptr)
+    {
+        delete buggy;
+    }
+    exit(sigNum);
 }
 
 int main(int argc, char* argv[])
 {
-  signal(SIGINT, sigHandler);
+    signal(SIGINT, sigHandler);
 
-  Buggy bug;
+    buggy = new Buggy();
+    while(1)
+        buggy->moveForward(MAX_SPEED, 10);
 
-  buggy.moveForward(MAX_SPEED, 3000);
-  std::cout << buggy.getSpeedMax();
-  
-
-  return 0;
+    return 0;
 }

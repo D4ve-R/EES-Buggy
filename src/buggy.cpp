@@ -1,5 +1,6 @@
 #include "buggy.h"
 
+#include <iostream>
 #include <thread>
 #include <wiringPi.h>
 
@@ -12,25 +13,25 @@ Buggy::Buggy():
   speed {0},
   estSpeedMS {0.0},
   speedMax {0.0},
-  hat {}
+  hat {nullptr},
+  sonic {nullptr},
+  gyro {nullptr},
+  backlight {nullptr}
 {
-  // setup wiringPi using wiringPi gpio mapping
-  // needed for Led:: & Ultrasonic::
-  // should only be called once
-  wiringPiSetup();
+    // setup wiringPi using wiringPi gpio mapping
+    // needed for Led:: & Ultrasonic::
+    // should only be called once
+    wiringPiSetup();
 
-  sonic = HCSR04(GPIO_0, GPIO_1);
-  backlight = Led(GPIO_2);
+    hat = new AdafruitMotorHAT();
+    sonic = new HCSR04(GPIO_0, GPIO_1);
+    gyro = new GY521();
+    backlight = new Led(GPIO_2);
 
-  // get all connected motors
-  for(int i = 1; i < 5; i++)
-  {
-    if(auto motor = hat.getMotor(i))
-    {
-      motors.push_back(motor);
-      motor->setSpeed(speed);
-    }
-  }
+    // get connected motors
+    motors.push_back(hat->getMotor(BUGGY_MOTOR_1));
+    motors.push_back(hat->getMotor(BUGGY_MOTOR_4));
+    setSpeed(speed);
 }
 
 /**
@@ -38,7 +39,20 @@ Buggy::Buggy():
  */
 Buggy::~Buggy()
 {
-  releaseAll();
+    if(sonic)
+        delete sonic;
+
+    if(gyro)
+        delete gyro;
+
+    if(backlight)
+        delete backlight;
+    
+    if(hat)
+    {
+        releaseAll();
+        delete hat;
+    }
 }
 
 /**
@@ -49,20 +63,20 @@ void Buggy::drive()
 {
   while(1)
   {
-    if(sonic.distance() < HCSR04_MIN_RANGE_CM + 1)
+    if(sonic->distance() < HCSR04_MIN_RANGE_CM + 1)
     {
       stop();
       return;
     }
 
-    while(sonic.distance() > 50)
+    while(sonic->distance() > 50)
     {
       moveForward();
     }
 
-    while(sonic.distance() > 15)
+    while(sonic->distance() > 15)
     {
-      moveForward((int)(MAX_SPEED/2 - sonic.distance()), 500);
+      moveForward((int)(MAX_SPEED/2 - sonic->distance()), 500);
     }
   }
 
@@ -96,13 +110,16 @@ void Buggy::move(AdafruitDCMotor::Command command, int delay_ms)
  */
 void Buggy::moveForward(int _speed, int delay_ms)
 {
-  setSpeed(_speed);
+    if(!safetyCheck())
+        return;
 
-  double dist = sonic.distance();
-  move(AdafruitDCMotor::kForward, delay_ms);
-  dist -= sonic.distance();
-  
-  estimateSpeed(dist, delay_ms);
+    setSpeed(_speed);
+
+    double dist = sonic->distance();
+    move(AdafruitDCMotor::kForward, delay_ms);
+    dist -= sonic->distance();
+
+    estimateSpeed(dist, delay_ms);
 }
 
 /**
@@ -115,9 +132,9 @@ void Buggy::moveBackward(int _speed, int delay_ms)
 {
   setSpeed(_speed);
 
-  double dist = sonic.distance();
+  double dist = sonic->distance();
   move(AdafruitDCMotor::kBackward, delay_ms);
-  dist = sonic.distance() - dist;
+  dist = sonic->distance() - dist;
 
   estimateSpeed(dist, delay_ms);
 }
@@ -128,18 +145,21 @@ void Buggy::moveBackward(int _speed, int delay_ms)
  */
 void Buggy::turnLeft(int deg)
 {
-  if (motors.size() == 2)
+    if(!safetyCheck())
+        return;
+
+  if (motors.size() >= 2)
   {
     auto motorL = motors[0];
     auto motorR = motors[1];
 
-    motorL->setSpeed(MAX_SPEED);
-    motorR->setSpeed(MAX_SPEED / 2);
+    motorL->setSpeed(MAX_SPEED/2);
+    motorR->setSpeed(MAX_SPEED);
 
     motorL->run(AdafruitDCMotor::kForward);
     motorR->run(AdafruitDCMotor::kForward);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds((deg/360)*1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds((deg * 2/360)*1000));
   }
 }
 
@@ -149,18 +169,21 @@ void Buggy::turnLeft(int deg)
  */
 void Buggy::turnRight(int deg)
 {
-  if (motors.size() == 2)
+    if(!safetyCheck())
+        return;
+
+  if (motors.size() >= 2)
   {
     auto motorL = motors[0];
     auto motorR = motors[1];
 
-    motorL->setSpeed(MAX_SPEED / 2);
-    motorR->setSpeed(MAX_SPEED);
+    motorL->setSpeed(MAX_SPEED);
+    motorR->setSpeed(MAX_SPEED/2);
 
     motorL->run(AdafruitDCMotor::kForward);
     motorR->run(AdafruitDCMotor::kForward);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds((deg/360)*1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds((deg * 2/360)*1000));
   }
 
 }
@@ -172,7 +195,7 @@ void Buggy::turnRight(int deg)
  */
 void Buggy::rotate(int deg, bool clockwise)
 {
-  if (motors.size() == 2)
+  if (motors.size() >= 2)
   {
     motors[0]->setSpeed(MAX_SPEED/2);
     motors[1]->setSpeed(MAX_SPEED/2);
@@ -249,3 +272,16 @@ void Buggy::setSpeed(int _speed)
   speed = _speed;
 }
 
+/**
+ * check if buggy is too close to obstacle
+ */
+bool Buggy::safetyCheck()
+{
+    if(sonic->distance() < (HCSR04_MIN_RANGE_CM + (25 * (speed / 255))))
+    {
+      stop();
+      return false;
+    }
+
+    return true;
+}

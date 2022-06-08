@@ -16,6 +16,9 @@
 #define GPIO_1    1   // BCM GPIO 18
 #define GPIO_2    2   // BCM GPIO 27
 
+#define BUGGY_MOTOR_1   1
+#define BUGGY_MOTOR_4   4
+
 /**
  * Represents the buggy
  * bundles functionality
@@ -27,13 +30,14 @@ class Buggy
     double speedMax;
 
     std::vector<std::shared_ptr<AdafruitDCMotor> > motors;
-    AdafruitMotorHAT hat;
-    HCSR04 sonic;
-    GY521 gyro;
-    Led backlight;
+    AdafruitMotorHAT* hat;
+    HCSR04* sonic;
+    GY521* gyro;
+    Led* backlight;
 
     void releaseAll();
     void setSpeed(int _speed);
+    bool safetyCheck();
 
     public:
 
