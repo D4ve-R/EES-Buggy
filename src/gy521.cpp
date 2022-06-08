@@ -24,9 +24,9 @@ GY521::~GY521()
 
 void GY521::readAccel()
 {
-    acc_x = device.read16(GY521_ACCEL_X);
-    acc_y = device.read16(GY521_ACCEL_Y);
-    acc_z = device.read16(GY521_ACCEL_Z);
+    acc_x = device.read16(GY521_ACCEL_X) / 16384;
+    acc_y = device.read16(GY521_ACCEL_Y) / 16384;
+    acc_z = device.read16(GY521_ACCEL_Z) / 16384;
 
     /*
     readReg(&acc_x, GY521_ACCEL_X);
@@ -37,9 +37,9 @@ void GY521::readAccel()
 
 void GY521::readGyro()
 {
-    gy_x = device.read16(GY521_GYRO_X);
-    gy_y = device.read16(GY521_GYRO_Y);
-    gy_z = device.read16(GY521_GYRO_Z);
+    gy_x = device.read16(GY521_GYRO_X) / 131;
+    gy_y = device.read16(GY521_GYRO_Y) / 131;
+    gy_z = device.read16(GY521_GYRO_Z) / 131;
 
     /*
     readReg(&gy_x, GY521_GYRO_X);
@@ -50,7 +50,7 @@ void GY521::readGyro()
 
 void GY521::readTemp()
 {
-    temp = device.read16(GY521_TEMP);
+    temp = device.read16(GY521_TEMP) / 340 + 37;
 
     /*
     readReg(&temp, GY521_TEMP);
