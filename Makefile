@@ -9,7 +9,7 @@ CFLAGS=-std=c++11 -Wall -I$(IDIR)
 LIBS=-lwiringPi
 
 main: main.o libbuggy.a
-	$(CC) main.o buggy.o hcsr04.o gy521.o  pwm.o i2cdeviceWP.o adafruitmotorhat.o adafruitdcmotor.o led.o-o $(ODIR)/$@ $(LIBS) $(CFLAGS)
+	$(CC) main.o buggy.o hcsr04.o gy521.o  pwm.o i2cdeviceWP.o adafruitmotorhat.o adafruitdcmotor.o led.o -o $(ODIR)/$@ $(LIBS) $(CFLAGS)
 	rm *.o
 	@echo created executable $@ in $(ODIR) 
 

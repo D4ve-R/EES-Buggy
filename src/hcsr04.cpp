@@ -40,7 +40,9 @@ double HCSR04::distance(void)
 
     while(digitalRead(pinEcho) == 0)
         start = std::chrono::steady_clock::now();
-
+    
+    // TODO
+    // if bigger than 200ms, no detection
     while(digitalRead(pinEcho) == 1)
         stop = std::chrono::steady_clock::now();
 
