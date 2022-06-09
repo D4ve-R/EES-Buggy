@@ -6,7 +6,7 @@
 #include "i2cdevice.h"
 
 constexpr double pi() { return std::atan(1)*4; }
-constexp double rad_to_deg() { return 180.0 / pi(); }
+constexpr double rad_to_deg() { return 180.0 / pi(); }
 
 // default i2c address
 #define GY521_I2C_ADDR      0x68
@@ -26,6 +26,10 @@ constexp double rad_to_deg() { return 180.0 / pi(); }
 #define GY521_GYRO_Z        0x47U
 #define GY521_TEMP          0x41U
 
+namespace MPU6050 
+{
+
+}
 
 /**
  * Represents a gy521 on mp60X0
@@ -33,51 +37,52 @@ constexp double rad_to_deg() { return 180.0 / pi(); }
  */
 class GY521
 {
-    struct enum CONFIG_REG
+    enum CONFIG_REG
     {
         ACCEL = GY521_ACCEL_CONFIG,
         GYRO = GY521_GYRO_CONFIG
-    }
+    };
 
-    struct enum FS_SEL
+    enum FS_SEL
     {
         _250 = 0,
         _500 = 1,
         _1000 = 2,
         _2000 = 3
-    }
+    };
 
-    struct enum AFS_SEL
+    enum AFS_SEL
     {
-        2G = 0,
-        4G = 1,
-        8G = 2,
-        12G = 3
-    }
+        _2G = 0,
+        _4G = 1,
+        _8G = 2,
+        _12G = 3
+    };
 
-    int16_t acc_x, acc_y, acc_z;
-    int16_t gy_x, gy_y, gy_z;
-    int16_t temp;
+    float acc_x, acc_y, acc_z;
+    float gy_x, gy_y, gy_z;
+    float temp;
     
-    int angle_x, angle_y, angle_z;
+    float angle_x, angle_y, angle_z;
 
-    int time, elapsedTime;
+    uint32_t t, elapsedTime;
 
     I2CDeviceWP device;
 
-    void configFullScaleRange(CONFIG_REG reg, int mode);
+    void configFullScaleRange(CONFIG_REG reg, uint8_t mode);
+
+    void readAccel();
+    void readGyro();
+    void readTemp();
 
     public:
     GY521(uint8_t i2cAddress = GY521_I2C_ADDR);
     ~GY521();
 
-    void readAccel();
-    void readGyro();
-    void readTemp();
     void readData();
 
-    void configAccel(AFS_SEL mode = AFS_SEL.2G);
-    void configGyro(FS_SEL mode = FS_SEL._250);
+    void configAccel(AFS_SEL mode = AFS_SEL::_2G);
+    void configGyro(FS_SEL mode = FS_SEL::_250);
     void configTemp(bool on = true);
     void reset();
 

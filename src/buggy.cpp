@@ -289,5 +289,5 @@ bool Buggy::safetyCheck()
 void Buggy::_debug()
 {
     gyro->readData();
-    std::cout << sonic->distance() << std::endl;
+    std::cout << "Dist: " << sonic->distance() << std::endl;
 }
