@@ -25,6 +25,7 @@ constexpr double rad_to_deg() { return 180.0 / pi(); }
 #define GY521_GYRO_Y        0x45U
 #define GY521_GYRO_Z        0x47U
 #define GY521_TEMP          0x41U
+#define GY521_WHOAMI        0x75U
 
 namespace MPU6050 
 {
@@ -69,7 +70,9 @@ class GY521
 
     float acc_scale, gy_scale;
     float acc_x_off, acc_y_off, acc_z_off, gy_x_off, gy_y_off, gy_z_off;
+
     uint32_t t;
+    float gy_angle_x, gy_angle_y;
 
     float angle_x, angle_y, angle_z;
 
@@ -89,6 +92,8 @@ class GY521
     void configTemp(bool on = true);
     void reset();
     void update();
+
+    int getI2CAddr();
 
 };
 

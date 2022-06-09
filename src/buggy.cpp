@@ -93,6 +93,8 @@ void Buggy::drive()
  */
 void Buggy::move(AdafruitDCMotor::Command command, int delay_ms)
 {
+    backlight->off();
+
     for(auto motor : motors)
     {
       motor->setSpeed(speed);
@@ -148,6 +150,8 @@ void Buggy::turnLeft(int deg)
     if(!safetyCheck())
         return;
 
+    backlight->off();
+
   if (motors.size() >= 2)
   {
     auto motorL = motors[0];
@@ -171,6 +175,8 @@ void Buggy::turnRight(int deg)
 {
     if(!safetyCheck())
         return;
+
+    backlight->off();
 
   if (motors.size() >= 2)
   {
@@ -220,8 +226,10 @@ void Buggy::rotate(int deg, bool clockwise)
  */
 void Buggy::stop()
 {
-  for(auto motor : motors)
-    motor->run(AdafruitDCMotor::kBrake);
+    backlight->on();
+
+    for(auto motor : motors)
+        motor->run(AdafruitDCMotor::kBrake);
 }
 
 double Buggy::getEstSpeedMS()
@@ -289,5 +297,4 @@ bool Buggy::safetyCheck()
 void Buggy::_debug()
 {
     gyro->update();
-    std::cout << "Dist: " << sonic->distance() << std::endl;
 }

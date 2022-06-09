@@ -1,6 +1,7 @@
 #include "gy521.h"
 
 #include <iostream>
+#include <stdio.h>
 #include <wiringPi.h>
 
 float limit(float a, float max)
@@ -25,7 +26,8 @@ GY521::GY521(uint8_t i2cAddress, AFS_SEL acc_mode, FS_SEL gy_mode):
     temp {0.0},
     angle_x {0.0}, angle_y {0.0}, angle_z {0.0},
     acc_x_off {0.0}, acc_y_off {0.0}, acc_z_off {0.0},
-    gy_x_off {0.0}, gy_y_off {0.0}, gy_z_off {0.0}
+    gy_x_off {0.0}, gy_y_off {0.0}, gy_z_off {0.0},
+    gy_angle_x {0.0}, gy_angle_y {0.0}
 {
     // disable sleep bit
     device.write8(GY521_PWR_MGMT_1, 0x00);
@@ -34,6 +36,8 @@ GY521::GY521(uint8_t i2cAddress, AFS_SEL acc_mode, FS_SEL gy_mode):
     configGyro(gy_mode);
     configTemp();
     
+    printf("I2C address: %#04x\n", getI2CAddr());
+
     calcOffset();
 
     t = millis();
@@ -48,49 +52,66 @@ GY521::~GY521()
 
 void GY521::readAccel()
 {
-    acc_x = (float) (device.read8(GY521_ACCEL_X) << 8 | device.read8(GY521_ACCEL_X + 1)) / acc_scale - acc_x_off;
-    acc_y = (float) (device.read8(GY521_ACCEL_Y) << 8 | device.read8(GY521_ACCEL_Y + 1)) / acc_scale - acc_y_off;
-    acc_z = (float) (device.read8(GY521_ACCEL_Z) << 8 | device.read8(GY521_ACCEL_Z + 1)) / acc_scale - acc_z_off;
+    acc_x = ((device.read8(GY521_ACCEL_X) << 8 | device.read8(GY521_ACCEL_X + 1)) - acc_x_off) / acc_scale;
+    acc_y = ((device.read8(GY521_ACCEL_Y) << 8 | device.read8(GY521_ACCEL_Y + 1)) - acc_y_off) / acc_scale;
+    acc_z = ((device.read8(GY521_ACCEL_Z) << 8 | device.read8(GY521_ACCEL_Z + 1)) - acc_z_off) / acc_scale;
 }
 
 void GY521::readGyro()
 {
-    gy_x = (float) (device.read8(GY521_GYRO_X) << 8 | device.read8(GY521_GYRO_X + 1)) / gy_scale - gy_x_off;
-    gy_y = (float) (device.read8(GY521_GYRO_Y) << 8 | device.read8(GY521_GYRO_Y + 1)) / gy_scale - gy_y_off;
-    gy_z = (float) (device.read8(GY521_GYRO_Z) << 8 | device.read8(GY521_GYRO_Z + 1)) / gy_scale - gy_z_off;
+    gy_x = ((device.read8(GY521_GYRO_X) << 8 | device.read8(GY521_GYRO_X + 1)) - gy_x_off) / gy_scale;
+    gy_y = ((device.read8(GY521_GYRO_Y) << 8 | device.read8(GY521_GYRO_Y + 1)) - gy_y_off) / gy_scale;
+    gy_z = ((device.read8(GY521_GYRO_Z) << 8 | device.read8(GY521_GYRO_Z + 1)) - gy_z_off) / gy_scale;
 }
 
 void GY521::readTemp()
 {
-    temp = ((float) (device.read8(GY521_TEMP) << 8 | device.read8(GY521_TEMP + 1)) / 340.0) + 36.53;
+    temp = (device.read8(GY521_TEMP) << 8 | device.read8(GY521_TEMP + 1)) / 340.0 + 36.53;
 }
 
 void GY521::update()
 {
     readAccel();
-    readGyro();
     
-    float neg = acc_z >= 0.0 ? 1.0 : -1.0;
-    float acc_angle_x = atan2(acc_y, neg * sqrt(pow(acc_z, 2) + pow(acc_x, 2))) * rad_to_deg();
-    float acc_angle_y = -1.0 * atan2(acc_x, sqrt(pow(acc_z, 2) + pow(acc_y, 2))) * rad_to_deg();
+    //float neg = acc_z >= 0.0 ? 1.0 : -1.0;
+    float acc_angle_x = atan(acc_y / sqrt(pow(acc_z, 2) + pow(acc_x, 2))) * rad_to_deg();
+    float acc_angle_y = atan(-1 * acc_x /  sqrt(pow(acc_z, 2) + pow(acc_y, 2))) * rad_to_deg();
+
+    readGyro();
+
+    if(initial)
+    {
+        intial = false;
+        t = millis();
+    }
 
     uint32_t tmp = millis();
-    float elapsedTime = (tmp - t) / 1000.0;
+    float period = (tmp - t) / 1000.0;
     t = tmp;
 
-    float tmp_x = limit(angle_x + gy_x * elapsedTime - acc_angle_x, 180);
+    /*
+    float tmp_x = limit(angle_x + gy_x * period - acc_angle_x, 180);
     tmp_x = 0.96 * (angle_x + tmp_x) + (0.04 * acc_angle_x);
 
-    float tmp_y = limit(angle_y + neg * gy_y * elapsedTime - acc_angle_y, 90);
+    float tmp_y = limit(angle_y + neg * gy_y * period - acc_angle_y, 90);
     tmp_y = 0.96 * (angle_y + tmp_y) + (0.04 * acc_angle_y);
      
     angle_x = limit(tmp_x, 180);
     angle_y = limit(tmp_y, 90);
-    angle_z = gy_z * elapsedTime;
+    angle_z = gy_z * period;
+    */
 
-    std::cout << "AngleX: "<< angle_x << std::endl;
-    std::cout << "AngleY: " << angle_y << std::endl;
-    std::cout << "AngleZ: " << angle_z << std::endl;
+    gy_angle_x += gy_x * period;
+    gy_angle_y += gy_y * period;
+
+    angle_x = 0.95 * gy_angle_x + 0.05 * acc_angle_x;
+    angle_y = 0.95 * gy_angle_y + 0.05 * acc_angle_y;
+    angle_z += gy_z * period;
+
+    //std::cout << "Pitch: "<< angle_x << std::endl;
+    //std::cout << "Roll: " << angle_y << std::endl;
+    //std::cout << "Yaw: " << angle_z << std::endl;
+    std::cout << "X: " << gy_x << " Y: " << gy_y << " Z: " << gy_z << std::endl;
 }
 
 
@@ -160,16 +181,17 @@ void GY521::reset()
 
 void GY521::calcOffset()
 {
-    uint32_t cnt = 200;
-    float sum[6] = {0};
-
-    for(uint32_t i = 0; i < cnt; i++)
+    uint8_t cnt = 200;
+    float sum[6] {0};
+    
+    uint8_t i = 0;
+    for(; i < cnt; i++)
     {
         readAccel();
         readGyro();
         sum[0] += acc_x;
         sum[1] += acc_y;
-        sum[2] += acc_z - 1.0;
+        sum[2] += acc_z;
         sum[3] += gy_x;
         sum[4] += gy_y;
         sum[5] += gy_z;
@@ -182,6 +204,20 @@ void GY521::calcOffset()
     gy_x_off  = sum[3] / cnt;
     gy_y_off  = sum[4] / cnt;
     gy_z_off  = sum[5] / cnt;
+
+    for(i = 0; i < 6; i++)
+    {
+        if(i < 3)
+            printf("acc error %c : %4.2f \n", ((char)(88 + (i%3))), sum[i]);
+        else
+            printf("gyro error %c : %4.2f \n", ((char)(88 + (i%3))), sum[i]);
+    }
+
+}
+
+int GY521::getI2CAddr()
+{
+    return device.read8(GY521_WHOAMI);
 }
 
 /*
