@@ -14,6 +14,10 @@ GY521::GY521(uint8_t i2cAddress):
 {
     // disable sleep bit
     device.write8(GY521_PWR_MGMT_1, 0x00);
+
+    configAccel();
+    configGyro();
+    configTemp();
 }
 
 GY521::~GY521()
@@ -65,6 +69,36 @@ void GY521::readData()
   std::cout << "ACC: "<< acc_x << acc_y << acc_z << std::endl;
   std::cout << "GY: " << gy_x << gy_y << gy_z << std::endl;
   std::cout << "Temp: " << temp << std::endl;
+}
+
+void GY521::configAccel(AFS_SEL mode)
+{
+    configFullScaleRange(CONFIG_REG.ACCEL, mode);
+}
+void GY521::configGyro(FS_SEL mode);
+{
+    configFullScaleRange(CONFIG_REG.GYRO, mode);
+}
+
+void GY521::configFullScaleRange(CONFIG_REG reg, int mode)
+{
+    device.write8(deviceConfigRegister, mode << 3);
+}
+
+void GY521::configTemp(bool on)
+{
+    if(on)
+    {    
+        device.write8(GY521_PWR_MGMT_1, (device.read8(GY521_PWR_MGMT_1) & ~(1 << 3)));
+        return;
+    }
+
+    device.write8(GY521_PWR_MGMT_1, (device.read8(GY521_PWR_MGMT_1) | (1 << 3)));
+}
+
+void GY521::reset()
+{
+    device.write8(GY521_PWR_MGMT_1, (device.read8(GY521_PWR_MGMT_1) | (1 << 7)));
 }
 
 /*
