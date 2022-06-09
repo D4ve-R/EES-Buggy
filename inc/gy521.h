@@ -59,32 +59,36 @@ class GY521
         _12G = 3
     };
 
+    I2CDeviceWP device;
+    bool initial;
+    
+    // scaled raw data
     float acc_x, acc_y, acc_z;
     float gy_x, gy_y, gy_z;
     float temp;
-    
+
+    float acc_scale, gy_scale;
+    float acc_x_off, acc_y_off, acc_z_off, gy_x_off, gy_y_off, gy_z_off;
+    uint32_t t;
+
     float angle_x, angle_y, angle_z;
 
-    uint32_t t, elapsedTime;
-
-    I2CDeviceWP device;
-
     void configFullScaleRange(CONFIG_REG reg, uint8_t mode);
+    void calcOffset();
 
     void readAccel();
     void readGyro();
     void readTemp();
 
     public:
-    GY521(uint8_t i2cAddress = GY521_I2C_ADDR);
+    GY521(uint8_t i2cAddress = GY521_I2C_ADDR, AFS_SEL acc_mode = AFS_SEL::_2G, FS_SEL gy_mode = FS_SEL::_250);
     ~GY521();
 
-    void readData();
-
-    void configAccel(AFS_SEL mode = AFS_SEL::_2G);
-    void configGyro(FS_SEL mode = FS_SEL::_250);
+    void configAccel(AFS_SEL mode);
+    void configGyro(FS_SEL mode);
     void configTemp(bool on = true);
     void reset();
+    void update();
 
 };
 
