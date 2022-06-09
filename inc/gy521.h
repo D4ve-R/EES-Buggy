@@ -1,8 +1,12 @@
 #pragma once
 
 #include <cstdint>
+#include <math.h>
 
 #include "i2cdevice.h"
+
+constexpr double pi() { return std::atan(1)*4; }
+constexp double rad_to_deg() { return 180.0 / pi(); }
 
 // default i2c address
 #define GY521_I2C_ADDR      0x68
@@ -54,6 +58,11 @@ class GY521
     int16_t acc_x, acc_y, acc_z;
     int16_t gy_x, gy_y, gy_z;
     int16_t temp;
+    
+    int angle_x, angle_y, angle_z;
+
+    int time, elapsedTime;
+
     I2CDeviceWP device;
 
     void configFullScaleRange(CONFIG_REG reg, int mode);

@@ -8,7 +8,7 @@ OBJ=buggy.o hcsr04.o gy521.o  pwm.o i2cdeviceWP.o adafruitmotorhat.o adafruitdcm
 
 CFLAGS=-std=c++11 -Wall -I$(IDIR)
 
-LIBS=-lwiringPi
+LIBS=-lwiringPi -lm
 
 main: main.o $(OBJ)
 	$(CC) main.o $(OBJ) -o $(ODIR)/$@ $(LIBS) $(CFLAGS)
