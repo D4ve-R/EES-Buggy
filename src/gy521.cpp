@@ -81,7 +81,7 @@ void GY521::update()
 
     if(initial)
     {
-        intial = false;
+        initial = false;
         t = millis();
     }
 

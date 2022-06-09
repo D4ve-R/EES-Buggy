@@ -27,12 +27,25 @@ void I2CDeviceWP::write(int data)
         wiringPiI2CWrite(handle, data);
 }
 
+void I2CDeviceWP::write(uint8_t* buffer)
+{
+    if (isValid())
+    {
+        do
+        {
+            wiringPiI2CWrite(handle, data);
+        }
+        while(++buffer != '\0');
+    }
+
+}
+
 /**
  * write 1 byte to specific device-register on i2c device
  *  int deviceRegister : register address on i2c device
  *  int data : byte data to be written
  */
-void I2CDeviceWP::write8 (int deviceRegister, int data)
+void I2CDeviceWP::write8 (uint8_t deviceRegister, uint8_t data)
 {
     if (isValid())
         wiringPiI2CWriteReg8(handle, deviceRegister, (data & 0xFF));
@@ -43,7 +56,7 @@ void I2CDeviceWP::write8 (int deviceRegister, int data)
  * int deviceRegister : register address on i2c device
  * int data : 2 bytes data to be written
  */
-void I2CDeviceWP::write16 (int deviceRegister, int data)
+void I2CDeviceWP::write16 (uint8_t deviceRegister, uint16_t data)
 {
     if (isValid())
         wiringPiI2CWriteReg16(handle, deviceRegister, (data & 0xFFFF));
@@ -66,7 +79,7 @@ int I2CDeviceWP::read(void)
  * int deviceRegister : register address on i2c device
  * returns 1 byte to data or -1 if failed
  */
-int I2CDeviceWP::read8(int deviceRegister)
+int I2CDeviceWP::read8(uint8_t deviceRegister)
 {
     if (isValid())
         return wiringPiI2CReadReg8(handle, deviceRegister);
@@ -79,7 +92,7 @@ int I2CDeviceWP::read8(int deviceRegister)
  * int deviceRegister : register address on i2c device
  * returns 2 byte to data or -1 if failed
  */
-int I2CDeviceWP::read16(int deviceRegister)
+int I2CDeviceWP::read16(uint8_t deviceRegister)
 {
     if (isValid())
         return wiringPiI2CReadReg16(handle, deviceRegister);
