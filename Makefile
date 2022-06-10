@@ -5,7 +5,7 @@ SDIRL=$(SDIR)/lib
 IDIR=inc
 ODIR=build
 
-OBJ=buggy.o hcsr04.o gy521.o  pwm.o i2cdeviceWP.o adafruitmotorhat.o adafruitdcmotor.o led.o
+OBJ=buggy.o hcsr04.o gy521.o hcsr04_log.o gy521_log.o pwm.o i2cdeviceWP.o adafruitmotorhat.o adafruitdcmotor.o led.o
 
 CFLAGS=-std=c++11 -Wall -I$(IDIR)
 
@@ -30,11 +30,14 @@ wasd.o:
 libbuggy.a: buggy.o
 	ar -r -o $(ODIR)/libbuggy.a buggy.o hcsr04.o gy521.o  pwm.o i2cdeviceWP.o adafruitmotorhat.o adafruitdcmotor.o led.o
 
-buggy.o: hcsr04.o gy521.o adafruitmotorhat.o led.o
+buggy.o: hcsr04.o gy521.o hcsr04_log.o gy521_log.o adafruitmotorhat.o led.o
 	$(CC) -c $(SDIRL)/buggy.cpp -o $@ $(CFLAGS)
 
 gy521.o: i2cdeviceWP.o
 	$(CC) -c $(SDIRL)/sensors/gy521.cpp -o $@ $(CFLAGS)
+
+gy521i_log.o: i2cdeviceWP.o
+	$(CC) -c $(SDIRL)/sensors/gy521_log.cpp -o $@ $(CFLAGS)
 
 adafruitmotorhat.o: pwm.o  adafruitdcmotor.o
 	$(CC) -c $(SDIRL)/adafruit/adafruitmotorhat.cpp -o $@ $(CFLAGS)
@@ -53,6 +56,9 @@ i2cdeviceWP.o:
 
 hcsr04.o:
 	$(CC) -c $(SDIRL)/sensors/hcsr04.cpp -o $@ $(CFLAGS)
+
+hcsr04_log.o:
+	$(CC) -c $(SDIRL)/sensors/hcsr04_log.cpp -o $@ $(CFLAGS)
 
 inputcontroller.o:
 	$(CC) -c $(SDIRL)/inputcontroller.cpp -o $@ $(CFLAGS)

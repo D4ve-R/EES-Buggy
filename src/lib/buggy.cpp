@@ -105,6 +105,7 @@ void Buggy::move(AdafruitDCMotor::Command command, int delay_ms)
     }
 
     std::this_thread::sleep_for( std::chrono::milliseconds( delay_ms ) );
+    stop();
 }
 
 /**
@@ -299,7 +300,6 @@ bool Buggy::safetyCheck()
 
 void Buggy::_debug()
 {
-    sonic->distance();
-    gyro->update();
-    delay(100);
+  moveForward();
 }
+

@@ -49,7 +49,7 @@ class HCSR04_LOG : public HCSR04
     public:
 
     HCSR04_LOG(uint8_t _pinTrigger, uint8_t _pinEcho, bool _verbose = true);
-    ~HC_SR04_LOG(){}
+    ~HCSR04_LOG(){}
 
     void setVerbose(bool _verbose);
     bool getVerbose();

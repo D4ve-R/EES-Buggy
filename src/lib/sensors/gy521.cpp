@@ -13,7 +13,7 @@ GY521::GY521(uint8_t i2cAddress, AFS_SEL acc_mode, FS_SEL gy_mode):
     angle_x {0.0}, angle_y {0.0}, angle_z {0.0},
     acc_x_off {0.0}, acc_y_off {0.0}, acc_z_off {0.0},
     gy_x_off {0.0}, gy_y_off {0.0}, gy_z_off {0.0},
-    gy_angle_x {0.0}, gy_angle_y {0.0},
+    gy_angle_x {0.0}, gy_angle_y {0.0}
 {
     // disable sleep bit
     device.write8(GY521_PWR_MGMT_1, 0x00);

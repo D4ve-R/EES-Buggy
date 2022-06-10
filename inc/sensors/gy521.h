@@ -104,4 +104,4 @@ class GY521_LOG : public GY521
 
     void update();
 
-}
+};
