@@ -10,7 +10,9 @@
  */
 HCSR04::HCSR04(uint8_t _pinTrigger, uint8_t _pinEcho):
     pinTrigger  {_pinTrigger},
-    pinEcho     {_pinEcho}
+    pinEcho     {_pinEcho},
+    dist        {0.0},
+    run      {false}
 {
     // will be handled in parent class Buggy
     // can only be called once
@@ -29,6 +31,9 @@ HCSR04::HCSR04(uint8_t _pinTrigger, uint8_t _pinEcho):
 
 HCSR04::~HCSR04()
 {
+    if(run.load())
+        stopMeasurement();
+
     digitalWrite(pinTrigger, LOW);
     digitalWrite(pinEcho, LOW);
 }
@@ -40,35 +45,26 @@ HCSR04::~HCSR04()
  */
 double HCSR04::distance(void)
 {
-    uint32_t start = micros();
-    uint32_t time = 0;
+    if(!run.load())
+        measurement();
 
-    trigger();
+    return getDist();
+}
 
-    while(digitalRead(pinEcho) == 0)
-        start = micros();
+void HCSR04::startMeasurement()
+{
+    run = true;
+    t = std::thread([](){
+            while(run.load())
+                measurement();
+            }, this);
 
-    while(digitalRead(pinEcho) == 1)
-    {
-        time = micros() - start;
+}
 
-        // if bigger than 20ms, no detection
-        if((time/1000) > 21)
-        {
-            // calculates to MAX_RANGE
-            time = 23309;
-            break;
-        }
-    }
-
-    // time in seconds
-    //std::chrono::duration<double> time = stop - start;
-
-    // prevent over trigger, see datasheet
-    delay(60);
-
-    // divided by 2 to measure only one way
-    return timeToDistanceCM(time / 1000000.0);
+void HCSR04::stopMeasurement()
+{
+    run = false;
+    t.join();
 }
 
 /**
@@ -96,3 +92,54 @@ void HCSR04::trigger(void)
     digitalWrite(pinTrigger, LOW);
 }
 
+
+void HCSR04::measurement()
+{
+    uint32_t start = micros();
+    uint32_t time = 0;
+
+    trigger();
+
+    while(digitalRead(pinEcho) == 0)
+        start = micros();
+
+    while(digitalRead(pinEcho) == 1)
+    {
+        time = micros() - start;
+
+        // if bigger than 20ms, no detection
+        if((time/1000) > 21)
+        {
+            // calculates to MAX_RANGE
+            time = 23309;
+            break;
+        }
+    }
+    
+    setDist(timeToDistanceCM(time  / (2.0 * 1000000)));
+
+    // prevent over trigger, see datasheet
+    delay(60);
+}
+
+void HCSR04::setDist(double _dist)
+{
+    std::unique_lock<std::mutex> lock(mtx);
+
+    dist = _dist;
+
+    lock.unlock();
+}
+
+double HCSR04::getDist()
+{
+    double ret = 0.0;
+
+    std::unique_lock<std::mutex> lock(mtx);
+
+    ret = dist;
+
+    lock.unlock();
+
+    return ret;
+}
