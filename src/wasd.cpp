@@ -15,6 +15,9 @@ void sigHandler(int sigNum)
     {
         delete buggy;
     }
+
+    endwin();
+
     exit(sigNum);
 }
 
@@ -26,6 +29,8 @@ int main(int argc, char* argv[])
     InputController ic = InputController(*buggy);
     
     ic.play();
+
+    delete buggy;
 
     return 0;
 }

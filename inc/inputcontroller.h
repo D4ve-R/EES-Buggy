@@ -2,6 +2,8 @@
 
 #include "buggy.h"
 
+#include <ncurses.h>
+
 class InputController
 {
   Buggy* buggy;

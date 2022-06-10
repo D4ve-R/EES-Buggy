@@ -1,22 +1,26 @@
 #include "inputcontroller.h"
 
 #include <iostream>
-#include <ncurses.h>
 
-InputController::InputController(Buggy& _buggy):
+InputController::InputController(Buggy& _buggy)
 {
     buggy = &_buggy;
-  initsrc();
-  noecho();
+  initscr();
+  cbreak();
+//  noecho();
+
+  keypad(stdscr, true);
 }
 
 void InputController::play()
 {
   int c = 0;
-  std::cout << "Press q to quit" << std::endl;
+    printw("Press Q to quit");
+    refresh();
 
   do
   {
+    flushinp();
     c = getch();
     switch(c)
     {
@@ -29,7 +33,7 @@ void InputController::play()
       case KEY_DOWN:
       case 'S':
       case 's':
-        buggy->moveBackwards();
+        buggy->moveBackward();
         break;
       
       case KEY_LEFT:
@@ -43,14 +47,18 @@ void InputController::play()
       case 'd':
         buggy->turnRight();
         break;
+
+      case 'P':
+      case 'p':
+        buggy->stop();
+        break;
       
       default:
         break;
     }
-
-    c = 0;
-
   } while(c != 'Q' && c != 'q');
+
+  buggy->stop();
 
   endwin();
 }

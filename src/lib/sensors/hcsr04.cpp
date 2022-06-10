@@ -1,7 +1,6 @@
 #include "sensors/hcsr04.h"
 
 #include <wiringPi.h>
-#include <chrono>
 
 /**
  * Constructor for ultrasonic sensor
