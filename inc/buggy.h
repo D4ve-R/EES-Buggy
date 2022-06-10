@@ -2,9 +2,9 @@
 
 #include <vector>
 
-#include "adafruitmotorhat.h"
-#include "hcsr04.h"
-#include "gy521.h"
+#include "adafruit/adafruitmotorhat.h"
+#include "sensors/hcsr04.h"
+#include "sensors/gy521.h"
 #include "led.h"
 
 
