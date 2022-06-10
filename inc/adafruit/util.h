@@ -42,7 +42,7 @@ namespace logger
     template<typename MessageType>
     void output (MessageType message)
     {
-        std::cout << "\U0001F68C " << message << std::endl;
+        std::cout << "\u2705 " << message << std::endl;
     }
 
     /**
@@ -51,7 +51,7 @@ namespace logger
     template<typename MessageType>
     void error (MessageType message)
     {
-        std::cerr << message << std::endl;
+        std::cerr << "\u274C " << message << std::endl;
     }
 
     /**

@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <math.h>
+#include <wiringPi.h>
 
 #include "i2cdeviceWP.h"
 
@@ -40,6 +41,28 @@ class GY521
         GYRO = GY521_GYRO_CONFIG
     };
 
+    I2CDeviceWP device;
+    bool initial;
+    
+    float acc_x, acc_y, acc_z;
+    float gy_x, gy_y, gy_z;
+    float temp;
+
+    float acc_scale, gy_scale;
+    float acc_x_off, acc_y_off, acc_z_off, gy_x_off, gy_y_off, gy_z_off;
+    uint32_t t;
+    float gy_angle_x, gy_angle_y;
+    float angle_x, angle_y, angle_z;
+
+    void configFullScaleRange(CONFIG_REG reg, uint8_t mode);
+    void calcOffset();
+
+    void readAccel();
+    void readGyro();
+    void readTemp();
+
+    public:
+
     enum FS_SEL
     {
         _250 = 0,
@@ -56,32 +79,7 @@ class GY521
         _12G = 3
     };
 
-    I2CDeviceWP device;
-    bool initial;
-    bool verbose;
-    
-    // scaled raw data
-    float acc_x, acc_y, acc_z;
-    float gy_x, gy_y, gy_z;
-    float temp;
-
-    float acc_scale, gy_scale;
-    float acc_x_off, acc_y_off, acc_z_off, gy_x_off, gy_y_off, gy_z_off;
-
-    uint32_t t;
-    float gy_angle_x, gy_angle_y;
-
-    float angle_x, angle_y, angle_z;
-
-    void configFullScaleRange(CONFIG_REG reg, uint8_t mode);
-    void calcOffset();
-
-    void readAccel();
-    void readGyro();
-    void readTemp();
-
-    public:
-    GY521(uint8_t i2cAddress = GY521_I2C_ADDR, AFS_SEL acc_mode = AFS_SEL::_2G, FS_SEL gy_mode = FS_SEL::_500, bool _verbose = true);
+    GY521(uint8_t i2cAddress = GY521_I2C_ADDR, AFS_SEL acc_mode = AFS_SEL::_2G, FS_SEL gy_mode = FS_SEL::_500);
     ~GY521();
 
     void configAccel(AFS_SEL mode);
@@ -94,3 +92,16 @@ class GY521
 
 };
 
+class GY521_LOG : public GY521
+{
+    bool verbose;
+
+    void calcOffset();
+
+    public:
+    GY521_LOG(bool _verbose = true);
+    ~GY521_LOG(){}
+
+    void update();
+
+}

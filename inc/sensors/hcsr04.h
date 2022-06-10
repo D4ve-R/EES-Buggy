@@ -15,8 +15,6 @@
 class HCSR04{
     uint8_t pinTrigger;
     uint8_t pinEcho;
-
-    bool verbose;
     
     double dist;
     
@@ -26,17 +24,34 @@ class HCSR04{
 
     double timeToDistanceCM(double timeS);
     void trigger(void);
-    void measurement();
+    double measurement();
     void threadLoop();
     void setDist(double _dist);
     double getDist();
 
     public:
-    HCSR04(uint8_t _pinTrigger, uint8_t _pinEcho, bool _verbose = true);
+    HCSR04(uint8_t _pinTrigger, uint8_t _pinEcho);
     ~HCSR04();
 
     double distance(void);
     void startMeasurement();
     void stopMeasurement();
+
+};
+
+class HCSR04_LOG : public HCSR04
+{
+    bool verbose;
+
+    double measurement();
+    void threadLoop();
+
+    public:
+
+    HCSR04_LOG(uint8_t _pinTrigger, uint8_t _pinEcho, bool _verbose = true);
+    ~HC_SR04_LOG(){}
+
+    void setVerbose(bool _verbose);
+    bool getVerbose();
 
 };

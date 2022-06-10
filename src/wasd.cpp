@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 {
     signal(SIGINT, sigHandler);
 
-    buggy = new Buggy();
+    buggy = new Buggy(false);
     InputController ic = InputController(*buggy);
     
     ic.play();

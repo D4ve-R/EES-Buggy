@@ -41,7 +41,7 @@ class Buggy
 
     public:
 
-    Buggy();
+    Buggy(bool verbose = true);
     ~Buggy();
 
     void drive();

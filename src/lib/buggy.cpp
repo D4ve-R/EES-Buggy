@@ -9,7 +9,7 @@
  * Constructor for buggy
  *
  */ 
-Buggy::Buggy():
+Buggy::Buggy(bool verbose):
   speed {0},
   estSpeedMS {0.0},
   speedMax {0.0},
@@ -24,16 +24,17 @@ Buggy::Buggy():
     wiringPiSetup();
 
     hat = new AdafruitMotorHAT();
-    gyro = new GY521();
     backlight = new Led(GPIO_2);
 
-    sonic = new HCSR04(GPIO_0, GPIO_1);
-    sonic->startMeasurement();
+    sonic = verbose ? new HCSR04_LOG(GPIO_0, GPIO_1) : new HCSR04(GPIO_0, GPIO_1);
+    gyro = verbose ? new GY521_LOG() : new GY521();
 
     // get connected motors
     motors.push_back(hat->getMotor(BUGGY_MOTOR_1));
     motors.push_back(hat->getMotor(BUGGY_MOTOR_4));
     setSpeed(speed);
+
+    sonic->startMeasurement();
 }
 
 /**
@@ -287,7 +288,7 @@ void Buggy::setSpeed(int _speed)
  */
 bool Buggy::safetyCheck()
 {
-    if(sonic->distance() < (HCSR04_MIN_RANGE_CM + (25 * (speed / 255))))
+    if(sonic->distance() < (HCSR04_MIN_RANGE_CM + 25))
     {
       stop();
       return false;
