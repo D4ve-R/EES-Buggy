@@ -15,6 +15,8 @@
 class HCSR04{
     uint8_t pinTrigger;
     uint8_t pinEcho;
+
+    bool verbose;
     
     double dist;
     
@@ -30,7 +32,7 @@ class HCSR04{
     double getDist();
 
     public:
-    HCSR04(uint8_t _pinTrigger, uint8_t _pinEcho);
+    HCSR04(uint8_t _pinTrigger, uint8_t _pinEcho, bool _verbose = true);
     ~HCSR04();
 
     double distance(void);

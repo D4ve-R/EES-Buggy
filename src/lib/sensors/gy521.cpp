@@ -2,6 +2,7 @@
 #include "adafruit/util.h"
 
 #include <iostream>
+#include <string>
 #include <wiringPi.h>
 
 
@@ -9,7 +10,7 @@
  * Constructor for gy521
  * uint8_t i2cAddress : i2c address of device
  */
-GY521::GY521(uint8_t i2cAddress, AFS_SEL acc_mode, FS_SEL gy_mode):
+GY521::GY521(uint8_t i2cAddress, AFS_SEL acc_mode, FS_SEL gy_mode, bool _verbose):
     device {i2cAddress},
     initial {true},
     acc_x {0.0}, acc_y {0.0}, acc_z {0.0}, 
@@ -18,7 +19,8 @@ GY521::GY521(uint8_t i2cAddress, AFS_SEL acc_mode, FS_SEL gy_mode):
     angle_x {0.0}, angle_y {0.0}, angle_z {0.0},
     acc_x_off {0.0}, acc_y_off {0.0}, acc_z_off {0.0},
     gy_x_off {0.0}, gy_y_off {0.0}, gy_z_off {0.0},
-    gy_angle_x {0.0}, gy_angle_y {0.0}
+    gy_angle_x {0.0}, gy_angle_y {0.0},
+    verbose {_verbose}
 {
     // disable sleep bit
     device.write8(GY521_PWR_MGMT_1, 0x00);
@@ -89,9 +91,12 @@ void GY521::update()
     //std::cout << "Pitch: "<< angle_x << std::endl;
     //std::cout << "Roll: " << angle_y << std::endl;
     //std::cout << "Yaw: " << angle_z << std::endl;
-    std::cout << "Temp: " << temp << std::endl;
-    std::cout << "ACC_X: " << acc_x << " ACC_Y: " << acc_y << " ACC_Z: " << acc_z << std::endl;
-    std::cout << "GY_X: " << gy_x << " GY_Y: " << gy_y << " GY_Z: " << gy_z << std::endl;
+    if(verbose)
+    {
+        logger::output("Temp: " + std::to_string(temp));
+        logger::output("ACC_X: " + std::to_string(acc_x) + " ACC_Y: " + std::to_string(acc_y) + " ACC_Z: " + std::to_string(acc_z));
+        logger::output("GY_X: " + std::to_string(gy_x) + " GY_Y: " + std::to_string(gy_y) + " GY_Z: " + std::to_string(gy_z));
+    }
 }
 
 
@@ -185,14 +190,21 @@ void GY521::calcOffset()
     gy_y_off  = sum[4] / cnt;
     gy_z_off  = sum[5] / cnt;
 
-    for(i = 0; i < 6; i++)
-    {
-        if(i < 3)
-            printf("acc error %c : %4.2f \n", ((char)(88 + (i%3))), sum[i]);
-        else
-            printf("gyro error %c : %4.2f \n", ((char)(88 + (i%3))), sum[i]);
-    }
-
+    if(verbose)
+        for(i = 0; i < 6; i++)
+        {
+            char s[25]{'\0'};
+            if(i < 3)
+            {
+                sprintf(s, "acc error %c : %4.2f \n", ((char)(88 + (i%3))), sum[i]);
+                logger::ouput(s);
+            }
+            else
+            {
+                sprintf(s, "gyro error %c : %4.2f \n", ((char)(88 + (i%3))), sum[i]);
+                logger::ouput(s);
+            }
+        }
 }
 
 int GY521::getI2CAddr()

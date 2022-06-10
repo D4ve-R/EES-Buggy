@@ -58,6 +58,7 @@ class GY521
 
     I2CDeviceWP device;
     bool initial;
+    bool verbose;
     
     // scaled raw data
     float acc_x, acc_y, acc_z;
@@ -80,7 +81,7 @@ class GY521
     void readTemp();
 
     public:
-    GY521(uint8_t i2cAddress = GY521_I2C_ADDR, AFS_SEL acc_mode = AFS_SEL::_2G, FS_SEL gy_mode = FS_SEL::_500);
+    GY521(uint8_t i2cAddress = GY521_I2C_ADDR, AFS_SEL acc_mode = AFS_SEL::_2G, FS_SEL gy_mode = FS_SEL::_500, bool _verbose = true);
     ~GY521();
 
     void configAccel(AFS_SEL mode);

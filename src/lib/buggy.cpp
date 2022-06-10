@@ -298,7 +298,7 @@ bool Buggy::safetyCheck()
 
 void Buggy::_debug()
 {
-    std::cout << "Dist: " << sonic->distance() << std::endl;
+    sonic->distance();
     gyro->update();
     delay(100);
 }

@@ -1,5 +1,7 @@
 #include "sensors/hcsr04.h"
+#include "adafruit/util.h"
 
+#include <string>
 #include <wiringPi.h>
 
 /**
@@ -7,11 +9,12 @@
  * uint8_t _pinTrigger : pin number of trigger pin
  * uint8_t _pinEcho    : pin number of echo pin
  */
-HCSR04::HCSR04(uint8_t _pinTrigger, uint8_t _pinEcho):
+HCSR04::HCSR04(uint8_t _pinTrigger, uint8_t _pinEcho, bool _verbose):
     pinTrigger  {_pinTrigger},
     pinEcho     {_pinEcho},
     dist        {0.0},
-    run      {false}
+    run      {false},
+    verbose  {_verbose}
 {
     // will be handled in parent class Buggy
     // can only be called once
@@ -117,8 +120,12 @@ void HCSR04::measurement()
             break;
         }
     }
-    
-    setDist(timeToDistanceCM(time  / (2.0 * 1000000)));
+   
+    double d = timeToDistanceCM(time  / (2.0 * 1000000));
+    setDist(d);
+
+    if(verbose)
+        logger::output("Dist: " + std::to_string(d));
 
     // prevent over trigger, see datasheet
     delay(60);
