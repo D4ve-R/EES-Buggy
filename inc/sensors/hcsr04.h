@@ -18,15 +18,18 @@ class HCSR04{
     
     double dist;
     
-    std::atomic<bool> run;
-    std::thread t;
     std::mutex mtx;
 
     double timeToDistanceCM(double timeS);
     void trigger(void);
-    double measurement();
     void threadLoop();
     void setDist(double _dist);
+
+    protected:
+    std::atomic<bool> run;
+    std::thread t;
+
+    double measurement();
     double getDist();
 
     public:
@@ -51,7 +54,8 @@ class HCSR04_LOG : public HCSR04
     HCSR04_LOG(uint8_t _pinTrigger, uint8_t _pinEcho, bool _verbose = true);
     ~HCSR04_LOG(){}
 
+    double distance(void);
+    void startMeasurement();
     void setVerbose(bool _verbose);
     bool getVerbose();
-
 };

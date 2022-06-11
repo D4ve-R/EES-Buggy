@@ -17,13 +17,27 @@ void sigHandler(int sigNum)
     exit(sigNum);
 }
 
+void driveCircle(Buggy* bug)
+{
+    bug->moveForward(100, 3000);
+    bug->rotate();
+    bug->moveForward(100, 3000);
+    bug->rotate();
+    bug->moveForward(100, 3000);
+    bug->rotate();
+    bug->moveForward(100, 3000);
+    bug->rotate();
+    bug->moveForward(100, 3000);
+}
+
 int main(int argc, char* argv[])
 {
     signal(SIGINT, sigHandler);
 
     buggy = new Buggy();
-    while(1)
-        buggy->_debug();
+   // driveCircle(buggy);
+    buggy->drive();
 
+    delete buggy;
     return 0;
 }

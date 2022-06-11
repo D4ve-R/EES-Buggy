@@ -43,23 +43,25 @@ class GY521
 
     I2CDeviceWP device;
     bool initial;
-    
-    float acc_x, acc_y, acc_z;
-    float gy_x, gy_y, gy_z;
-    float temp;
 
     float acc_scale, gy_scale;
-    float acc_x_off, acc_y_off, acc_z_off, gy_x_off, gy_y_off, gy_z_off;
     uint32_t t;
     float gy_angle_x, gy_angle_y;
     float angle_x, angle_y, angle_z;
 
     void configFullScaleRange(CONFIG_REG reg, uint8_t mode);
-    void calcOffset();
 
     void readAccel();
     void readGyro();
     void readTemp();
+
+    protected:
+    float acc_x, acc_y, acc_z;
+    float gy_x, gy_y, gy_z;
+    float temp;
+    float acc_x_off, acc_y_off, acc_z_off, gy_x_off, gy_y_off, gy_z_off;
+
+    void calcOffset();
 
     public:
 

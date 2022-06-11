@@ -36,7 +36,7 @@ buggy.o: hcsr04.o gy521.o hcsr04_log.o gy521_log.o adafruitmotorhat.o led.o
 gy521.o: i2cdeviceWP.o
 	$(CC) -c $(SDIRL)/sensors/gy521.cpp -o $@ $(CFLAGS)
 
-gy521i_log.o: i2cdeviceWP.o
+gy521_log.o: i2cdeviceWP.o
 	$(CC) -c $(SDIRL)/sensors/gy521_log.cpp -o $@ $(CFLAGS)
 
 adafruitmotorhat.o: pwm.o  adafruitdcmotor.o

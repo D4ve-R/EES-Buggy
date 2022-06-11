@@ -8,6 +8,8 @@
 #include "led.h"
 
 
+#define LOGGING
+
 #define MAX_SPEED   255
 #define MIN_SPEED   0
 
@@ -31,9 +33,15 @@ class Buggy
 
     std::vector<std::shared_ptr<AdafruitDCMotor> > motors;
     AdafruitMotorHAT* hat;
+    Led* backlight;
+    
+#ifndef LOGGING
     HCSR04* sonic;
     GY521* gyro;
-    Led* backlight;
+#else
+    HCSR04_LOG* sonic;
+    GY521_LOG* gyro;
+#endif
 
     void releaseAll();
     void setSpeed(int _speed);
@@ -41,14 +49,14 @@ class Buggy
 
     public:
 
-    Buggy(bool verbose = true);
+    Buggy();
     ~Buggy();
 
     void drive();
 
     void move(AdafruitDCMotor::Command command, int delay_ms);
-    void moveForward(int _speed = MAX_SPEED, int delay_ms = 1000);
-    void moveBackward(int _speed = MAX_SPEED, int delay_ms = 1000);
+    void moveForward(int _speed = MAX_SPEED/2, int delay_ms = 1000);
+    void moveBackward(int _speed = MAX_SPEED/2, int delay_ms = 1000);
     void turnLeft(int deg = 90);
     void turnRight(int deg = 90);
     void rotate(int deg = 90, bool clockwise = true);

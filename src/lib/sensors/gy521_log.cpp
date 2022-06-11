@@ -31,18 +31,19 @@ void GY521_LOG::calcOffset()
     GY521::calcOffset();
 
     if(verbose)
-        for(i = 0; i < 6; i++)
-        {
-            char s[25]{'\0'};
-            if(i < 3)
-            {
-                sprintf(s, "acc error %c : %4.2f \n", ((char)(88 + (i%3))), sum[i]);
-                logger::output(s);
-            }
-            else
-            {
-                sprintf(s, "gyro error %c : %4.2f \n", ((char)(88 + (i%3))), sum[i]);
-                logger::output(s);
-            }
-        }
+    {
+        char s[25]{'\0'};
+        sprintf(s, "acc error x: %4.2f", acc_x_off);
+        logger::output(s);
+        sprintf(s, "acc error x: %4.2f", acc_y_off);
+        logger::output(s);
+        sprintf(s, "acc error x: %4.2f", acc_z_off);
+        logger::output(s);
+        sprintf(s, "gy error x: %4.2f", gy_x_off);
+        logger::output(s);
+        sprintf(s, "gy error y: %4.2f", gy_y_off);
+        logger::output(s);
+        sprintf(s, "gy error z: %4.2f", gy_z_off);
+        logger::output(s);
+    } 
 }
