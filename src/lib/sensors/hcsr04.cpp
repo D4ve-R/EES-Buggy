@@ -3,8 +3,8 @@
 
 /**
  * Constructor for ultrasonic sensor
- * uint8_t _pinTrigger : pin number of trigger pin
- * uint8_t _pinEcho    : pin number of echo pin
+ * @param uint8_t _pinTrigger : pin number of trigger pin
+ * @param uint8_t _pinEcho    : pin number of echo pin
  */
 HCSR04::HCSR04(uint8_t _pinTrigger, uint8_t _pinEcho):
     pinTrigger  {_pinTrigger},
@@ -24,9 +24,15 @@ HCSR04::HCSR04(uint8_t _pinTrigger, uint8_t _pinEcho):
     pullUpDnControl(pinEcho, PUD_DOWN);
 
     digitalWrite(pinTrigger, LOW);
+
     delay(10);
 }
 
+/**
+ * Destroy the HCSR04::HCSR04 object
+ * stop measurement thread if running
+ * set gpios to low
+ */
 HCSR04::~HCSR04()
 {
     if(run.load())
@@ -39,29 +45,40 @@ HCSR04::~HCSR04()
 /*
  * measures time in seconds and
  * calculate distance in cm
- * returns distance[cm]
+ * @return double distance[cm]
  */
-double HCSR04::distance(void)
+double HCSR04::distance()
 {
     if(!run.load())
-        measurement();
+        this->measurement();
 
     return getDist();
 }
 
+/**
+ * loop function for measurement thread
+ */
 void HCSR04::threadLoop()
 {
     while(run.load())
-        measurement();
+        this->measurement();
 }
 
+/**
+ * starts new measurement thread
+ * with threadLoop()
+ */
 void HCSR04::startMeasurement()
 {
     run = true;
-    t = std::thread(&HCSR04::threadLoop, this);
+    t = std::thread(&threadLoop, this);
 
 }
 
+/**
+ * stop measurement thread
+ * and wait for thread to suspend
+ */
 void HCSR04::stopMeasurement()
 {
     run = false;
@@ -72,7 +89,7 @@ void HCSR04::stopMeasurement()
  * converts time period in distance
  * velocity is speed of sound
  * double timeS : time in seconds
- * returns distance in centimeter
+ * @return double distance in centimeter
  */
 double HCSR04::timeToDistanceCM(double timeS)
 {
@@ -82,8 +99,9 @@ double HCSR04::timeToDistanceCM(double timeS)
 
 /**
  * triggers sensor to measurement
+ * time periods according to datasheet
  */
-void HCSR04::trigger(void)
+void HCSR04::trigger()
 {
     digitalWrite(pinTrigger, LOW);
     delayMicroseconds(2);
@@ -93,7 +111,14 @@ void HCSR04::trigger(void)
     digitalWrite(pinTrigger, LOW);
 }
 
-
+/**
+ * measurement of distance
+ * trigger measurement, wait for response and calculate dist from time
+ * assigns new distance value with setDist()
+ * prevents overtrigger
+ * 
+ * @return double distance[cm] 
+ */
 double HCSR04::measurement()
 {
     uint32_t start = micros();
@@ -126,6 +151,10 @@ double HCSR04::measurement()
     return d;
 }
 
+/**
+ * set shared member variable dist thread safe
+ * @param _dist 
+ */
 void HCSR04::setDist(double _dist)
 {
     std::unique_lock<std::mutex> lock(mtx);
@@ -135,6 +164,10 @@ void HCSR04::setDist(double _dist)
     lock.unlock();
 }
 
+/**
+ * get shared member variable dist thread safe
+ * @return double latest distance dist 
+ */
 double HCSR04::getDist()
 {
     double ret = 0.0;

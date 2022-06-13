@@ -9,7 +9,7 @@
  * Constructor for buggy
  *
  */ 
-Buggy::Buggy():
+Buggy::Buggy(bool verbose):
   speed {0},
   estSpeedMS {0.0},
   speedMax {0.0},
@@ -26,26 +26,23 @@ Buggy::Buggy():
     hat = new AdafruitMotorHAT();
     backlight = new Led(GPIO_2);
 
-#ifndef LOGGING
-    sonic = new HCSR04(GPIO_0, GPIO_1);
-    gyro = new GY521();
-#else
-    sonic = new HCSR04_LOG(GPIO_0, GPIO_1);
-    gyro = new GY521_LOG();
-#endif
+    sonic = verbose ? new HCSR04_LOG(GPIO_0, GPIO_1) : new HCSR04(GPIO_0, GPIO_1);
+    gyro = verbose ?  new GY521_LOG() : new GY521();
 
     // get connected motors
     motors.push_back(hat->getMotor(BUGGY_MOTOR_1));
     motors.push_back(hat->getMotor(BUGGY_MOTOR_4));
     setSpeed(speed);
 
+    // start measuring distance
     sonic->startMeasurement();
 
     delay(100);
 }
 
 /**
- * Deconsturctor for Buggy
+ * Deconstructor for Buggy
+ * deconstruct all components
  */
 Buggy::~Buggy()
 {
@@ -68,6 +65,8 @@ Buggy::~Buggy()
 /**
  * "self" driving
  * checks ultrasonic sensor for distance
+ * if obstacle in front, rotats 90 deg clockwise
+ * check will be performed 8 times, before stoping
  */
 void Buggy::drive()
 {
@@ -95,7 +94,6 @@ void Buggy::drive()
 /**
  * move buggy in X direction
  * int command : AdafruitDCMotor::Command for direction
- * int _speed : speed of driving between 0 and 255
  * int delay_ms : time of driving in milliseconds
  */
 void Buggy::move(AdafruitDCMotor::Command command, int delay_ms)
@@ -109,6 +107,7 @@ void Buggy::move(AdafruitDCMotor::Command command, int delay_ms)
     }
 
     std::this_thread::sleep_for( std::chrono::milliseconds( delay_ms ) );
+    
     stop();
 }
 
@@ -309,17 +308,4 @@ bool Buggy::safetyCheck()
     return true;
 }
 
-void Buggy::_debug()
-{
-    moveForward(110);
-  turnRight();
-    moveForward(110);
-  turnRight();
-    moveForward(110);
-  turnRight();
-    moveForward(110);
-  turnRight();
-    moveForward(110);
-    rotate(360);
-}
 

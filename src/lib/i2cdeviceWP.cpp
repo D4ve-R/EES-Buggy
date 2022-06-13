@@ -39,6 +39,9 @@ void I2CDeviceWP::write(int data)
         wiringPiI2CWrite(handle, data);
 }
 
+/**
+ * todo
+ */
 void I2CDeviceWP::write(uint8_t* buffer)
 {
     if (isValid())

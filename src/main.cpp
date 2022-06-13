@@ -32,9 +32,10 @@ void driveCircle(Buggy* bug)
 
 int main(int argc, char* argv[])
 {
+    // set up interrupt handler
     signal(SIGINT, sigHandler);
 
-    buggy = new Buggy();
+    buggy = new Buggy(true);
    // driveCircle(buggy);
     buggy->drive();
 

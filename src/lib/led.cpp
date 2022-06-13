@@ -2,7 +2,7 @@
 
 /**
  * Constructor for Led
- * int _pinNumber : GPIO pin number
+ * @param int _pinNumber : GPIO pin number
  */
 Led::Led(int _pinNumber):
   pinNumber {_pinNumber}
@@ -12,6 +12,10 @@ Led::Led(int _pinNumber):
   off();
 }
 
+/**
+ * @brief Destroy the Led:: Led object
+ * 
+ */
 Led::~Led()
 {
     off();

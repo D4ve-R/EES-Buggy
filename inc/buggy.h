@@ -8,7 +8,6 @@
 #include "led.h"
 
 
-#define LOGGING
 
 #define MAX_SPEED   255
 #define MIN_SPEED   0
@@ -35,13 +34,8 @@ class Buggy
     AdafruitMotorHAT* hat;
     Led* backlight;
     
-#ifndef LOGGING
     HCSR04* sonic;
     GY521* gyro;
-#else
-    HCSR04_LOG* sonic;
-    GY521_LOG* gyro;
-#endif
 
     void releaseAll();
     void setSpeed(int _speed);
@@ -49,7 +43,7 @@ class Buggy
 
     public:
 
-    Buggy();
+    Buggy(bool verbose = false);
     ~Buggy();
 
     void drive();
@@ -65,9 +59,6 @@ class Buggy
     double getEstSpeedMS();
     double getSpeedMax();
     void estimateSpeed(double& dist, int& time);
-
-    // fpr development purposes
-    void _debug();
 
 };
 

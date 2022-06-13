@@ -61,7 +61,7 @@ class GY521
     float temp;
     float acc_x_off, acc_y_off, acc_z_off, gy_x_off, gy_y_off, gy_z_off;
 
-    void calcOffset();
+    virtual void calcOffset();
 
     public:
 
@@ -88,7 +88,7 @@ class GY521
     void configGyro(FS_SEL mode);
     void configTemp(bool on = true);
     void reset();
-    void update();
+    virtual void update();
 
     int getI2CAddr();
 

@@ -4,14 +4,18 @@
 
 InputController::InputController(Buggy& _buggy)
 {
-    buggy = &_buggy;
+  buggy = &_buggy;
   initscr();
   cbreak();
-//  noecho();
+  noecho();
 
   keypad(stdscr, true);
 }
 
+/**
+ * game loop
+ * 
+ */
 void InputController::play()
 {
   int c = 0;
@@ -24,7 +28,7 @@ void InputController::play()
     c = getch();
     switch(c)
     {
-        case KEY_UP:
+      case KEY_UP:
       case 'W':
       case 'w':
         buggy->moveForward();

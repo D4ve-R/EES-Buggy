@@ -2,7 +2,7 @@
 
 /**
  * Constructor for gy521
- * uint8_t i2cAddress : i2c address of device
+ * @param uint8_t i2cAddress : i2c address of device
  */
 GY521::GY521(uint8_t i2cAddress, AFS_SEL acc_mode, FS_SEL gy_mode):
     device {i2cAddress},
@@ -27,6 +27,10 @@ GY521::GY521(uint8_t i2cAddress, AFS_SEL acc_mode, FS_SEL gy_mode):
     t = millis();
 }
 
+/**
+ * Destroy the GY521::GY521 object
+ * 
+ */
 GY521::~GY521()
 {
     reset();
@@ -34,6 +38,10 @@ GY521::~GY521()
     device.write8(GY521_PWR_MGMT_1, 0x40);
 }
 
+/**
+ * read raw acceleration register x, y, z
+ * correct with mean error, and divide by scale
+ */
 void GY521::readAccel()
 {
     acc_x = ((device.read8(GY521_ACCEL_X) << 8 | device.read8(GY521_ACCEL_X + 1)) - acc_x_off) / acc_scale;
@@ -41,6 +49,10 @@ void GY521::readAccel()
     acc_z = ((device.read8(GY521_ACCEL_Z) << 8 | device.read8(GY521_ACCEL_Z + 1)) - acc_z_off) / acc_scale;
 }
 
+/**
+ * read gyroscope register x, y, z
+ * correct with mean error and divide by scale
+ */
 void GY521::readGyro()
 {
     gy_x = ((device.read8(GY521_GYRO_X) << 8 | device.read8(GY521_GYRO_X + 1)) - gy_x_off) / gy_scale;
@@ -48,11 +60,17 @@ void GY521::readGyro()
     gy_z = ((device.read8(GY521_GYRO_Z) << 8 | device.read8(GY521_GYRO_Z + 1)) - gy_z_off) / gy_scale;
 }
 
+/**
+ * read temperature register and scale value
+ */
 void GY521::readTemp()
 {
     temp = (device.read8(GY521_TEMP) << 8 | device.read8(GY521_TEMP + 1)) / 340.0 + 36.53;
 }
 
+/**
+ * updates calculated values from new data
+ */
 void GY521::update()
 {
     readTemp();
@@ -83,7 +101,11 @@ void GY521::update()
 
 }
 
-
+/**
+ * set ACCEL_CONFIG register,
+ * to change mode and set scale factors
+ * @param mode AFS_SEL mode, see datasheet
+ */
 void GY521::configAccel(AFS_SEL mode)
 {
     configFullScaleRange(CONFIG_REG::ACCEL, mode);
@@ -105,6 +127,12 @@ void GY521::configAccel(AFS_SEL mode)
             break;
     }
 }
+
+/**
+ * set GYRO_CONFIG register,
+ * to change mode and set scale factors
+ * @param mode FS_SEL mode, see datasheet
+ */
 void GY521::configGyro(FS_SEL mode)
 {
     configFullScaleRange(CONFIG_REG::GYRO, mode);
@@ -127,11 +155,20 @@ void GY521::configGyro(FS_SEL mode)
     }
 }
 
+/**
+ * set AFS or FS register to mode
+ * @param reg to choose AFS or FS
+ * @param mode 
+ */
 void GY521::configFullScaleRange(CONFIG_REG reg, uint8_t mode)
 {
     device.write8(reg, (mode << 3));
 }
 
+/**
+ * turn temeprature measurement on/off
+ * @param on : turns on temp measurement
+ */
 void GY521::configTemp(bool on)
 {
     if(on)
@@ -143,11 +180,18 @@ void GY521::configTemp(bool on)
     device.write8(GY521_PWR_MGMT_1, (device.read8(GY521_PWR_MGMT_1) | (1 << 3)));
 }
 
+/**
+ * set reset bit in power managment register 1
+ */
 void GY521::reset()
 {
     device.write8(GY521_PWR_MGMT_1, (device.read8(GY521_PWR_MGMT_1) | (1 << 7)));
 }
 
+/**
+ * calculate mean offset error
+ * !!! no movement or vibration while calculating !!!
+ */
 void GY521::calcOffset()
 {
     uint8_t cnt = 200;
@@ -176,52 +220,12 @@ void GY521::calcOffset()
 
 }
 
+/**
+ * read who-am-i register
+ * @return int : i2c address from who-am-i register
+ */
 int GY521::getI2CAddr()
 {
     return device.read8(GY521_WHOAMI);
 }
-
-/*
-void GY521::readReg(int* data, int regAddr)
-{
-    int _data = device.read8(regAddr);
-    _data = _data << 8;
-    _data = _data | device.read8(regAddr + 1);
-    data = _data;
-}
-
-void GY521::readData()
-{
-    readTemp();
-    readAccel();
-    readGyro();
-
-    float acc_angle_x = atan(acc_x / sqrt(pow(acc_y, 2) + pow(acc_z, 2))) * rad_to_deg();
-    float acc_angle_y = atan(acc_y / sqrt(pow(acc_x, 2) + pow(acc_z, 2))) * rad_to_deg();
-    float acc_angle_z = atan(sqrt(pow(acc_x, 2) + pow(acc_y, 2)) / acc_z);
-
-    if(initial)
-    {
-        initial = false;
-
-        gy_angle_x = acc_angle_x;
-        gy_angle_y = acc_angle_y;
-        gy_angle_z = acc_angle_z;
-    }
-    else
-    {
-        //gy_angle_x = gy_x * elapsedTime;
-        //gy_angle_y = gy_y * elapsedTime;
-        //gy_angle_z = gy_z * elapsedTime;
-    }
-
-    angle_x = 0.96 * (angle_x + gy_angle_x) + (0.04 * acc_angle_x);
-    angle_y = 0.96 * (angle_y + gy_angle_y) + (0.04 * acc_angle_y);
-    angle_z = 0.96 * (angle_z + gy_angle_z) + (0.04 * acc_angle_z);
-
-    std::cout << "AngleX: "<< angle_x << std::endl;
-    std::cout << "AngleY: " << angle_y << std::endl;
-    //std::cout << "Temp: " << temp << std::endl;
-}
-*/
 
