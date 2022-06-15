@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <cmath>
 
 #include "adafruit/adafruitmotorhat.h"
 #include "sensors/hcsr04.h"
@@ -54,11 +55,14 @@ class Buggy
     void turnLeft(int deg = 90);
     void turnRight(int deg = 90);
     void rotate(int deg = 90, bool clockwise = true);
+    void rotateGY(int8_t deg);
     void stop();
     
     double getEstSpeedMS();
     double getSpeedMax();
     void estimateSpeed(double& dist, int& time);
+
+    void _debug();
 
 };
 

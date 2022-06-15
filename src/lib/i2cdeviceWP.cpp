@@ -20,7 +20,7 @@ I2CDeviceWP::I2CDeviceWP (uint8_t i2cAddress)
     if(handle < 0)
         logger::error(std::string("Failed to open I2C device at ") + std::string(s));
     else
-        logger::output(std::string("I2C device connected at ") + std::string(s));
+        logger::success(std::string("I2C device connected at ") + std::string(s));
 
     delay(5);
 }

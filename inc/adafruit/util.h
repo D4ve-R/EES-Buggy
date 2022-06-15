@@ -42,6 +42,15 @@ namespace logger
     template<typename MessageType>
     void output (MessageType message)
     {
+        std::cout << "> " << message << std::endl;
+    }
+
+    /**
+        Writes a success message to stdout.
+    */
+    template<typename MessageType>
+    void success (MessageType message)
+    {
         std::cout << "\u2705 " << message << std::endl;
     }
 

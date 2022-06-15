@@ -33,7 +33,7 @@ class HCSR04{
 
     public:
     HCSR04(uint8_t _pinTrigger, uint8_t _pinEcho);
-    ~HCSR04();
+    virtual ~HCSR04();
 
     double distance();
     void startMeasurement();

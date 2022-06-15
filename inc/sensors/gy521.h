@@ -46,8 +46,6 @@ class GY521
 
     float acc_scale, gy_scale;
     uint32_t t;
-    float gy_angle_x, gy_angle_y;
-    float angle_x, angle_y, angle_z;
 
     void configFullScaleRange(CONFIG_REG reg, uint8_t mode);
 
@@ -60,6 +58,8 @@ class GY521
     float gy_x, gy_y, gy_z;
     float temp;
     float acc_x_off, acc_y_off, acc_z_off, gy_x_off, gy_y_off, gy_z_off;
+    float gy_angle_x, gy_angle_y, gy_angle_z;
+    float angle_x, angle_y, angle_z;
 
     virtual void calcOffset();
 
@@ -81,8 +81,8 @@ class GY521
         _12G = 3
     };
 
-    GY521(uint8_t i2cAddress = GY521_I2C_ADDR, AFS_SEL acc_mode = AFS_SEL::_2G, FS_SEL gy_mode = FS_SEL::_500);
-    ~GY521();
+    GY521(uint8_t i2cAddress = GY521_I2C_ADDR, AFS_SEL acc_mode = AFS_SEL::_2G, FS_SEL gy_mode = FS_SEL::_250);
+    virtual ~GY521();
 
     void configAccel(AFS_SEL mode);
     void configGyro(FS_SEL mode);
@@ -91,6 +91,8 @@ class GY521
     virtual void update();
 
     int getI2CAddr();
+    float getZRotation();
+    void setZRotation(int8_t deg = 0);
 
 };
 

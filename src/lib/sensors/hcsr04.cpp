@@ -71,7 +71,7 @@ void HCSR04::threadLoop()
 void HCSR04::startMeasurement()
 {
     run = true;
-    t = std::thread(&threadLoop, this);
+    t = std::thread(&HCSR04::threadLoop, this);
 
 }
 

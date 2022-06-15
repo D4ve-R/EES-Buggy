@@ -26,7 +26,7 @@ Buggy::Buggy(bool verbose):
     hat = new AdafruitMotorHAT();
     backlight = new Led(GPIO_2);
 
-    sonic = verbose ? new HCSR04_LOG(GPIO_0, GPIO_1) : new HCSR04(GPIO_0, GPIO_1);
+    sonic = verbose ? new HCSR04_LOG(GPIO_0, GPIO_1, false) : new HCSR04(GPIO_0, GPIO_1);
     gyro = verbose ?  new GY521_LOG() : new GY521();
 
     // get connected motors
@@ -71,24 +71,24 @@ Buggy::~Buggy()
 void Buggy::drive()
 {
     uint8_t errorCnt = 0;
-    uint8_t maxErrors = 7;
+    uint8_t maxErrors = 4;
   while(1)
   {
       if(!safetyCheck())
       {
-          if(errorCnt++ > maxErrors)
+          if(++errorCnt > maxErrors)
               break;
 
-          rotate();
+          rotateGY(90);
+          continue;
       }
+      
+      moveForward(MAX_SPEED/2, 1000);
 
-      moveForward();
       errorCnt = 0;
   }
 
   stop();
-  return;
-
 }
 
 /**
@@ -98,36 +98,62 @@ void Buggy::drive()
  */
 void Buggy::move(AdafruitDCMotor::Command command, int delay_ms)
 {
-    backlight->off();
-
     for(auto motor : motors)
     {
       motor->setSpeed(speed);
       motor->run(command);
     }
 
-    std::this_thread::sleep_for( std::chrono::milliseconds( delay_ms ) );
-    
-    stop();
+    std::this_thread::sleep_for( std::chrono::milliseconds( delay_ms ) );    
 }
 
 /**
  * move buggy forward
+ * implements simple pid controller algorithm
  * estimates speed while driving
  * int _speed   : speed between 0 - 255, default(255)
  * int delay_ms : time to drive in milliseconds, default(1000)
  */
 void Buggy::moveForward(int _speed, int delay_ms)
 {
-    if(!safetyCheck())
-        return;
+    static uint32_t T;
 
-    setSpeed(_speed);
+    backlight->off();
+    gyro->setZRotation(0);
 
     double dist = sonic->distance();
-    move(AdafruitDCMotor::kForward, delay_ms);
-    dist -= sonic->distance();
 
+    const int factor = 10;
+    const uint32_t begin = millis();
+
+    while(millis() - begin < delay_ms)
+    {
+        if(millis() - T > 10)
+        {
+            if(!safetyCheck())
+                break;
+
+            int rot = (int) gyro->getZRotation();
+            int speedL = _speed + rot * factor;
+            int speedR = _speed - rot * factor;
+
+            speedL = speedL > MAX_SPEED ? MAX_SPEED : speedL;
+            speedL = speedL < 10 ? 10 : speedL;
+            speedR = speedR > MAX_SPEED ? MAX_SPEED : speedR;
+            speedR = speedR < 10 ? 10 : speedR;
+
+            motors[0]->setSpeed(speedL);
+            motors[1]->setSpeed(speedR);
+
+            motors[0]->run(AdafruitDCMotor::kForward);
+            motors[1]->run(AdafruitDCMotor::kForward);
+
+            T = millis();
+        }
+    }
+
+    gyro->setZRotation(0);
+    dist -= sonic->distance();
     estimateSpeed(dist, delay_ms);
 }
 
@@ -139,6 +165,7 @@ void Buggy::moveForward(int _speed, int delay_ms)
  */
 void Buggy::moveBackward(int _speed, int delay_ms)
 {
+    backlight->off();
   setSpeed(_speed);
 
   double dist = sonic->distance();
@@ -171,8 +198,6 @@ void Buggy::turnLeft(int deg)
     motorR->run(AdafruitDCMotor::kForward);
 
     std::this_thread::sleep_for(std::chrono::milliseconds((deg/90)*1500));
-
-    stop();
   }
 }
 
@@ -199,8 +224,6 @@ void Buggy::turnRight(int deg)
     motorR->run(AdafruitDCMotor::kForward);
 
     std::this_thread::sleep_for(std::chrono::milliseconds((deg/90)*1500));
-
-    stop();
   }
 
 }
@@ -233,6 +256,49 @@ void Buggy::rotate(int deg, bool clockwise)
 
     stop();
   }
+}
+
+/**
+ * rotate buggy
+ * int deg : degrees of rotation,
+ * if deg is pos, rotates clockwise
+ * if deg is neg, rotates counter-clockwise 
+ */
+void Buggy::rotateGY(int8_t deg)
+{
+    backlight->off();
+
+    // reset z origin to 0 for orientation
+    gyro->setZRotation();
+
+    if (motors.size() >= 2)
+    {
+        motors[0]->setSpeed(MAX_SPEED/3);
+        motors[1]->setSpeed(MAX_SPEED/3);
+
+        if (deg < 0)
+        {
+            // counter-clockwise
+            motors[1]->run(AdafruitDCMotor::kForward);
+            motors[0]->run(AdafruitDCMotor::kBackward);
+
+            while(gyro->getZRotation() < -deg)
+                delay(10);
+        }
+        else
+        {
+            // clockwise
+            motors[0]->run(AdafruitDCMotor::kForward);
+            motors[1]->run(AdafruitDCMotor::kBackward);
+
+            while((gyro->getZRotation()) > -deg)
+                delay(10);
+        }
+
+        stop();
+
+        gyro->setZRotation();
+    }
 }
 
 /**
@@ -299,7 +365,7 @@ void Buggy::setSpeed(int _speed)
  */
 bool Buggy::safetyCheck()
 {
-    if(sonic->distance() < (HCSR04_MIN_RANGE_CM + 25.0 * (speed/255.0)))
+    if(sonic->distance() < HCSR04_MIN_RANGE_CM + 15.0)
     {
       stop();
       return false;
@@ -308,4 +374,11 @@ bool Buggy::safetyCheck()
     return true;
 }
 
-
+void Buggy::_debug()
+{
+    while(1)
+    {
+        gyro->update();
+        delay(500);
+    }
+}

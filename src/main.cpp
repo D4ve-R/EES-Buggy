@@ -38,6 +38,7 @@ int main(int argc, char* argv[])
     buggy = new Buggy(true);
    // driveCircle(buggy);
     buggy->drive();
+//    buggy->_debug();
 
     delete buggy;
     return 0;
